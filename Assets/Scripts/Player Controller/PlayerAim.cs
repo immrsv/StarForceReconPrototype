@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAim : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
+public class PlayerAim : MonoBehaviour
+{
+    
+	void Start ()
+    {
 		
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 		
 	}
 }
