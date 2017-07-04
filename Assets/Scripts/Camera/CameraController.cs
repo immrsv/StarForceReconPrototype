@@ -163,15 +163,7 @@ public class CameraController : MonoBehaviour
         Vector3 offset = GetRotationalOffset();
 
         // Get offset from aim pointer
-        Vector3 aimOffset = Vector3.zero;
-        if (_aimOffsetDistance > 0)
-            aimOffset = GetAimOffset();
-        
-        // Apply a vertical offset & set camera distance
-        float yVal = Mathf.Tan(_pitch * Mathf.Deg2Rad);
-        offset += new Vector3(0, yVal, 0);
-        offset = offset.normalized;
-        offset *= _distance;
+        Vector3 aimOffset = GetAimOffset();
 
         Vector3 desiredPos = focusPoint + offset + aimOffset;
 
@@ -214,31 +206,37 @@ public class CameraController : MonoBehaviour
     // Internal use only. Calculates the camera offset based on rotation
     private Vector3 GetRotationalOffset()
     {
-        Vector3 offset = new Vector3(Mathf.Sin( (_rotation - 90) * Mathf.Deg2Rad ), 0, Mathf.Cos( (_rotation + 90) * Mathf.Deg2Rad) );
+        Vector3 offset = new Vector3(Mathf.Sin( (_rotation - 90) * Mathf.Deg2Rad ), 
+                                        Mathf.Tan(_pitch * Mathf.Deg2Rad), 
+                                        Mathf.Cos( (_rotation + 90) * Mathf.Deg2Rad) );
+
+        offset = offset.normalized * _distance;
         return offset;
     }
 
     // Internal use only. Calculates a camera offset based on how far the mouse is from the center of the screen
     private Vector3 GetAimOffset()
     {
-        // Get a reference to the current squaddie's aim script
-        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
-        if (currentSquaddie)
+        if (_aimOffsetDistance > 0)
         {
-            PlayerAim aimScript = currentSquaddie.gameObject.GetComponent<PlayerAim>();
-            if (aimScript)
+            // Get a reference to the current squaddie's aim script
+            SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+            if (currentSquaddie)
             {
-                // Get aim point
-                if (aimScript.IsAiming)
+                PlayerAim aimScript = currentSquaddie.gameObject.GetComponent<PlayerAim>();
+                if (aimScript)
                 {
-                    Vector3 aimPoint = aimScript.GetAimPoint;
-                    Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
+                    // Get aim point
+                    if (aimScript.IsAiming)
+                    {
+                        Vector3 aimPoint = aimScript.GetAimPoint;
+                        Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
 
-                    return offsetPoint * _aimOffsetDistance;
+                        return offsetPoint * _aimOffsetDistance;
+                    }
                 }
             }
         }
-
         return Vector3.zero;
     }
 }
