@@ -6,6 +6,11 @@ using UnityEngine;
  * Tracks squad members, current selected member, etc. */
 public static class stSquadManager
 {
+    // Event info
+    public delegate void EventHandler();
+    public static event EventHandler OnSwitchSquaddie;  // This event is called every time the selected squad member is changed
+
+    // Selection variables
     private static List<SquaddieSwitchController> _squadMembers;
     private static int _selectedIndex;
     private static SquaddieSwitchController _selected;
@@ -15,6 +20,7 @@ public static class stSquadManager
         get { return _selected; }
     }
 
+    // Sets the list of controllable squad members
     public static void SetSquadList(List<SquaddieSwitchController> members)
     {
         // Set list
@@ -34,6 +40,14 @@ public static class stSquadManager
         {
             Debug.LogWarning("Warning: No current squad members. Cannot switch.");
             return null;
+        }
+
+        if (_squadMembers.Count == 1)
+        {
+            // Only one squad member available
+            _selected = _squadMembers[0];
+            _selectedIndex = 0;
+            return _selected;
         }
 
         // Get index of the next squad member
@@ -65,6 +79,8 @@ public static class stSquadManager
 
         if (_selected)
             _selected.SelectSquaddie();
+
+        OnSwitchSquaddie();
 
         return _selected;
     }

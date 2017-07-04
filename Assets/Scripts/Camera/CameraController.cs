@@ -11,13 +11,20 @@ public class CameraController : MonoBehaviour
         get { return _singletonInstance; }
     }
 
-    private Transform _camTransform;
+    private Vector3 _centerPoint;       // Tracks the main focus of the camera
+    private Vector3 _oldPoint;      // Previous center point. Used for lerping
+    private bool _camLerping = false;
+    private float _camLerpProgress = 0.0f;
+
+    [Range(0.2f, 0.6f), Tooltip("Time in seconds it takes for the camera to reach a new target location, when switching controlled characters")]
+    public float _switchCharacterTime;     // Time taken for the camera to lerp to new position when switching characters
 
     private List<Transform> _pointsOfInterest;      // A list of positions the camera will aim to keep in view
 
     // Rotation info
     [SerializeField]        private float _rotation;
-    [Range(1.0f, 180.0f)]   public float _rotationSpeed = 20.0f;
+    [Range(60.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
+    public float _rotationSpeed = 60.0f;
 
     void Awake ()
     {
@@ -32,14 +39,29 @@ public class CameraController : MonoBehaviour
 
     void Start ()
     {
-        // Get a reference to the main camera's transform
-        _camTransform = Camera.main.transform;
+        // Set follow points to current squad members location
+        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
 
-        if (!_camTransform)
-            DestroyImmediate(this);
+        if (currentSquaddie)
+        {
+            _oldPoint = currentSquaddie.transform.position;
+            _centerPoint = currentSquaddie.transform.position;
+        }
+
+        // Add an event handler for squad member switching
+        stSquadManager.OnSwitchSquaddie += StSquadManager_OnSwitchSquaddie;
 	}
-	
-	void Update ()
+
+    // Event Handler for squad member switching. Handles cam lerping to new location
+    private void StSquadManager_OnSwitchSquaddie()
+    {
+        _camLerping = true;
+        _camLerpProgress = 0.0f;
+        _oldPoint = _centerPoint;
+        _centerPoint = stSquadManager.GetCurrentSquaddie.transform.position;
+    }
+
+    void Update ()
     {
         // Handle rotation input
         if (Input.GetButton("CameraRotation"))
@@ -54,7 +76,27 @@ public class CameraController : MonoBehaviour
             MapRotation();
         }
 
-        // TODO
+        Camera mainCam = Camera.main;
+        
+        // Get focus point of the camera
+        Vector3 focusPoint = GetCenterPoint();
+
+        // Get camera offset based on rotation
+        Vector3 offset = GetRotationalOffset();
+
+        // TODO: Multiply offset by camera distance & add vertical offset. (offset vector currently has y = 0)
+        offset += new Vector3(0,0.68f,0);
+        offset *= 10.0f;
+        // TODO: REMOVE TEMP CODE ^
+
+        Vector3 camPos = focusPoint + offset;
+        mainCam.transform.position = camPos;
+
+        // TODO: Find actual center point of all points of interest, etc. Weigh focus point highly
+
+        // Set camera to look at the focus point
+        // TODO: Later this should look at the center point, once it is found
+        mainCam.transform.rotation = Quaternion.LookRotation(focusPoint - mainCam.transform.position, Vector3.up);
     }
 
     // Adds the specified transform as a point of interest for the camera
@@ -84,5 +126,43 @@ public class CameraController : MonoBehaviour
             if (_rotation < 0)
                 _rotation += 360;
         }
+    }
+
+    // Internal use only. Handles lerping of center point
+    private Vector3 GetCenterPoint()
+    {
+        if (!_camLerping)
+            return _centerPoint;
+
+        // Calculate how far into the lerp the camera currently is
+        _camLerpProgress += Time.deltaTime;
+
+        // Get value 0-1 for progress through lerp
+        float progress = _camLerpProgress / _switchCharacterTime;
+
+        // Check for end of lerp
+        if (_camLerpProgress >= _switchCharacterTime)
+        {
+            _camLerpProgress = _switchCharacterTime;
+            _camLerping = false;
+        }
+
+        // Clamp progress value.
+        if (progress > 1.0f)    progress = 1.0f;
+
+        // Get a vector from the old point to the new point
+        Vector3 prevToCurrentPoint = _centerPoint - _oldPoint;
+
+        // Get the position between both points @ progress
+        Vector3 point = _oldPoint + (prevToCurrentPoint * progress);
+        
+        return point;
+    }
+
+    // Internal use only. Calculates the camera offset based on rotation
+    private Vector3 GetRotationalOffset()
+    {
+        Vector3 offset = new Vector3(Mathf.Sin( (_rotation - 90) * Mathf.Deg2Rad ), 0, Mathf.Cos( (_rotation + 90) * Mathf.Deg2Rad) );
+        return offset;
     }
 }
