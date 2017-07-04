@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
         get { return _singletonInstance; }
     }
 
-    private Vector3 _centerPoint;       // Tracks the main focus of the camera
+    private Vector3 _focusPoint;       // Tracks the main focus of the camera
     private Vector3 _oldPoint;      // Previous center point. Used for lerping
     private bool _camLerping = false;
     private float _camLerpProgress = 0.0f;
@@ -45,7 +45,7 @@ public class CameraController : MonoBehaviour
         if (currentSquaddie)
         {
             _oldPoint = currentSquaddie.transform.position;
-            _centerPoint = currentSquaddie.transform.position;
+            _focusPoint = currentSquaddie.transform.position;
         }
 
         // Add an event handler for squad member switching
@@ -57,8 +57,8 @@ public class CameraController : MonoBehaviour
     {
         _camLerping = true;
         _camLerpProgress = 0.0f;
-        _oldPoint = _centerPoint;
-        _centerPoint = stSquadManager.GetCurrentSquaddie.transform.position;
+        _oldPoint = _focusPoint;
+        _focusPoint = stSquadManager.GetCurrentSquaddie.transform.position;
     }
 
     void Update ()
@@ -132,7 +132,7 @@ public class CameraController : MonoBehaviour
     private Vector3 GetCenterPoint()
     {
         if (!_camLerping)
-            return _centerPoint;
+            return _focusPoint;
 
         // Calculate how far into the lerp the camera currently is
         _camLerpProgress += Time.deltaTime;
@@ -151,7 +151,7 @@ public class CameraController : MonoBehaviour
         if (progress > 1.0f)    progress = 1.0f;
 
         // Get a vector from the old point to the new point
-        Vector3 prevToCurrentPoint = _centerPoint - _oldPoint;
+        Vector3 prevToCurrentPoint = _focusPoint - _oldPoint;
 
         // Get the position between both points @ progress
         Vector3 point = _oldPoint + (prevToCurrentPoint * progress);

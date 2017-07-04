@@ -84,4 +84,24 @@ public static class stSquadManager
 
         return _selected;
     }
+
+    // Switches to a character at the specified zero-based index
+    public static bool SwitchTo(int index)
+    {
+        if (index >= 0 && index < _squadMembers.Count)
+        {
+            if (index != _selectedIndex)
+            {
+                _selectedIndex = index;
+                _selected = _squadMembers[index];
+
+                // Trigger switch event
+                OnSwitchSquaddie();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
