@@ -12,9 +12,16 @@ public class CameraController : MonoBehaviour
     }
 
     private Vector3 _focusPoint;       // Tracks the main focus of the camera
-    private Vector3 _oldPoint;      // Previous center point. Used for lerping
+    private Vector3 _oldFocusPoint;      // Previous center point. Used for lerping
     private bool _camLerping = false;
     private float _camLerpProgress = 0.0f;
+
+    [Range(10.0f, 85.0f)]   public float _pitch = 45.0f;
+    [Range(10.0f, 25.0f)]   public float _distance = 15.0f;
+    [Range(0.0f, 0.6f)]  public float _aimOffsetDistance = 0.25f;
+
+    [Range(10.0f, 20.0f), Tooltip("The maximum allowed speed (units/sec) for the camera to move at")]
+    public float _maxMovementSpeed = 10.0f;
 
     [Range(0.2f, 0.6f), Tooltip("Time in seconds it takes for the camera to reach a new target location, when switching controlled characters")]
     public float _switchCharacterTime;     // Time taken for the camera to lerp to new position when switching characters
@@ -44,7 +51,7 @@ public class CameraController : MonoBehaviour
 
         if (currentSquaddie)
         {
-            _oldPoint = currentSquaddie.transform.position;
+            _oldFocusPoint = currentSquaddie.transform.position;
             _focusPoint = currentSquaddie.transform.position;
         }
 
@@ -61,7 +68,7 @@ public class CameraController : MonoBehaviour
         SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
         if (currentSquaddie)
         {
-            _oldPoint = _focusPoint;
+            _oldFocusPoint = _focusPoint;
             _focusPoint = currentSquaddie.transform.position;
         }
     }
@@ -83,25 +90,36 @@ public class CameraController : MonoBehaviour
 
         Camera mainCam = Camera.main;
 
-        // Get focus point of the camera
-        Vector3 focusPoint = GetCenterPoint();
+        // Get desired & current position
+        Vector3 camForward = Vector3.zero;
+        Vector3 desiredPosition = GetDesiredPos(out camForward);
+        Vector3 currentPosition = mainCam.transform.position;
 
-        // Get camera offset based on rotation
-        Vector3 offset = GetRotationalOffset();
+        Debug.DrawRay(desiredPosition, Vector3.up);
 
-        // TODO: Multiply offset by camera distance & add vertical offset. (offset vector currently has y = 0)
-        offset += new Vector3(0,0.68f,0);
-        offset *= 10.0f;
-        // TODO: REMOVE TEMP CODE ^
+        if (desiredPosition != currentPosition)
+        {
+            // Get the vector from the current position to the desired position
+            Vector3 toDesired = desiredPosition - currentPosition;
+            float movementLength = toDesired.magnitude;
 
-        Vector3 camPos = focusPoint + offset;
-        mainCam.transform.position = camPos;
+            // TODO: This needs to be re-written.
+            // Desired functionality would have the camera smoothly lerp to it's desired position rather than snapping to it.
 
-        // TODO: Find actual center point of all points of interest, etc. Weigh focus point highly
+            if (movementLength >= 0.01f)
+            {
+                // Find how much the camera should move by this frame
+                float toMoveThisFrame = movementLength * Time.deltaTime;
+                toMoveThisFrame = Mathf.Clamp(toMoveThisFrame, 0.01f, _maxMovementSpeed * Time.deltaTime);
 
-        // Set camera to look at the focus point
-        // TODO: Later this should look at the center point, once it is found
-        mainCam.transform.rotation = Quaternion.LookRotation(focusPoint - mainCam.transform.position, Vector3.up);
+                Vector3 finalOffset = toDesired.normalized * toMoveThisFrame;
+                mainCam.transform.position = finalOffset + currentPosition;
+            }
+            else
+                mainCam.transform.position = desiredPosition;
+        }
+
+        mainCam.transform.rotation = Quaternion.LookRotation(camForward, Vector3.up);
     }
 
     // Adds the specified transform as a point of interest for the camera
@@ -117,7 +135,7 @@ public class CameraController : MonoBehaviour
         if (t)
             _pointsOfInterest.RemoveAll(trans => trans == t);
     }
-
+    
     // Internal use only. Keeps rotation value mapped between 0 & 360
     private void MapRotation()
     {
@@ -131,6 +149,35 @@ public class CameraController : MonoBehaviour
             if (_rotation < 0)
                 _rotation += 360;
         }
+    }
+
+    // Internal use only. Calculates the final camera offset & lerps to it
+    private Vector3 GetDesiredPos(out Vector3 lookDirection)
+    {
+        Camera mainCam = Camera.main;
+
+        // Get focus point of the camera
+        Vector3 focusPoint = GetCenterPoint();
+
+        // Get camera offset based on rotation
+        Vector3 offset = GetRotationalOffset();
+
+        // Get offset from aim pointer
+        Vector3 aimOffset = Vector3.zero;
+        if (_aimOffsetDistance > 0)
+            aimOffset = GetAimOffset();
+        
+        // Apply a vertical offset & set camera distance
+        float yVal = Mathf.Tan(_pitch * Mathf.Deg2Rad);
+        offset += new Vector3(0, yVal, 0);
+        offset = offset.normalized;
+        offset *= _distance;
+
+        Vector3 desiredPos = focusPoint + offset + aimOffset;
+
+        lookDirection = focusPoint + aimOffset - mainCam.transform.position;
+
+        return desiredPos;
     }
 
     // Internal use only. Handles lerping of center point
@@ -156,10 +203,10 @@ public class CameraController : MonoBehaviour
         if (progress > 1.0f)    progress = 1.0f;
 
         // Get a vector from the old point to the new point
-        Vector3 prevToCurrentPoint = _focusPoint - _oldPoint;
+        Vector3 prevToCurrentPoint = _focusPoint - _oldFocusPoint;
 
         // Get the position between both points @ progress
-        Vector3 point = _oldPoint + (prevToCurrentPoint * progress);
+        Vector3 point = _oldFocusPoint + (prevToCurrentPoint * progress);
         
         return point;
     }
@@ -172,27 +219,26 @@ public class CameraController : MonoBehaviour
     }
 
     // Internal use only. Calculates a camera offset based on how far the mouse is from the center of the screen
-    private Vector3 GetAimViewportOffset()
+    private Vector3 GetAimOffset()
     {
-        Camera mainCam = Camera.main;
-
-        // Get viewport coordinates for currently selected character
-        Vector2 charScreenPoint = mainCam.WorldToScreenPoint(stSquadManager.GetCurrentSquaddie.transform.position);
-        Vector2 charViewportPoint = mainCam.ScreenToViewportPoint(charScreenPoint);
-
-        if (    charViewportPoint.x > 0.3f
-            &&  charViewportPoint.x < 0.7f
-            &&  charViewportPoint.y > 0.3f
-            &&  charViewportPoint.y < 0.7f )    // Character is close to the center of the screen. Apply aim offset to camera position
+        // Get a reference to the current squaddie's aim script
+        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+        if (currentSquaddie)
         {
-            // TODO: This implementation needs to be fixed. 
-            Vector2 mouseViewportPoint = mainCam.ScreenToViewportPoint(Input.mousePosition);
+            PlayerAim aimScript = currentSquaddie.gameObject.GetComponent<PlayerAim>();
+            if (aimScript)
+            {
+                // Get aim point
+                if (aimScript.IsAiming)
+                {
+                    Vector3 aimPoint = aimScript.GetAimPoint;
+                    Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
 
-            Vector3 diff = new Vector3(mouseViewportPoint.x - charViewportPoint.x, 0, mouseViewportPoint.y - charViewportPoint.y);
-
-            return diff;
+                    return offsetPoint * _aimOffsetDistance;
+                }
+            }
         }
 
-        return new Vector2(0, 0);
+        return Vector3.zero;
     }
 }

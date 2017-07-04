@@ -12,6 +12,15 @@ public class PlayerAim : MonoBehaviour
 
     private Vector3 _aimPoint;
     private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
+
+    public Vector3 GetAimPoint
+    {
+        get { return _aimPoint; }
+    }
+    public bool IsAiming
+    {
+        get { return _aimingAtGeometry; }
+    }
     
 	void Start ()
     {
