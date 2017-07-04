@@ -106,11 +106,11 @@ public class CameraController : MonoBehaviour
             // TODO: This needs to be re-written.
             // Desired functionality would have the camera smoothly lerp to it's desired position rather than snapping to it.
 
-            if (movementLength >= 0.01f)
+            if (movementLength >= 0.1f)
             {
                 // Find how much the camera should move by this frame
                 float toMoveThisFrame = movementLength * Time.deltaTime;
-                toMoveThisFrame = Mathf.Clamp(toMoveThisFrame, 0.01f, _maxMovementSpeed * Time.deltaTime);
+                toMoveThisFrame = Mathf.Clamp(toMoveThisFrame, 0.1f, _maxMovementSpeed * Time.deltaTime);
 
                 Vector3 finalOffset = toDesired.normalized * toMoveThisFrame;
                 mainCam.transform.position = finalOffset + currentPosition;

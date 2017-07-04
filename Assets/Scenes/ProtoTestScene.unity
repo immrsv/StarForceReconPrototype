@@ -177,7 +177,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pitch: 45
+  _distance: 15
   _aimOffsetDistance: 0.25
+  _maxMovementSpeed: 10
   _switchCharacterTime: 0.324
   _rotation: 0
   _rotationSpeed: 200

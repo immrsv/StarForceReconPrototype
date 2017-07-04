@@ -80,7 +80,7 @@ public class PlayerAim : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (_aimingAtGeometry)
+        if (enabled && _aimingAtGeometry)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, _aimPoint);
