@@ -13,16 +13,29 @@ public static class stSquadManager
     // Selection variables
     private static List<SquaddieSwitchController> _squadMembers;
     private static int _selectedIndex;
-    private static SquaddieSwitchController _selected;
+    private static SquaddieSwitchController _selected = null;
 
     public static SquaddieSwitchController GetCurrentSquaddie
     {
         get { return _selected; }
     }
 
+    // Internal use only. Checks if there are any registered listeners for the OnSwitchSquaddie event, and calls the event if so
+    private static void SafeFireOnSwitchSquaddie()
+    {
+        EventHandler switchEvent = OnSwitchSquaddie;
+        if (switchEvent != null)    // Check there are registered listeners before firing event
+            switchEvent();
+    }
+
     // Sets the list of controllable squad members
     public static void SetSquadList(List<SquaddieSwitchController> members)
     {
+        // Call switch event with null selection
+        _selected = null;
+        _selectedIndex = 0;
+        SafeFireOnSwitchSquaddie();
+
         // Set list
         _squadMembers = members;
 
@@ -30,7 +43,8 @@ public static class stSquadManager
         if (_squadMembers.Count > 0)
         {
             _selected = _squadMembers[0];
-            _selectedIndex = 0;
+
+            SafeFireOnSwitchSquaddie();
         }
     }
 
@@ -69,18 +83,12 @@ public static class stSquadManager
                 next--;
         }
 
-        // Deselect currently selected squad member (re-enable AI, etc)
-        if (_selected)
-            _selected.DeselectSquaddie();
-
         // Select new squad member
         _selectedIndex = next;
         _selected = _squadMembers[_selectedIndex];
 
-        if (_selected)
-            _selected.SelectSquaddie();
-
-        OnSwitchSquaddie();
+        // Trigger switch event
+        SafeFireOnSwitchSquaddie();
 
         return _selected;
     }
@@ -96,7 +104,7 @@ public static class stSquadManager
                 _selected = _squadMembers[index];
 
                 // Trigger switch event
-                OnSwitchSquaddie();
+                SafeFireOnSwitchSquaddie();
 
                 return true;
             }

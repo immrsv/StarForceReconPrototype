@@ -9,6 +9,9 @@ public class PlayerAim : MonoBehaviour
 
     [Tooltip("A list of tags the player can aim at. The player will aim at the first object under the mouse which has a tag included in this list.")]
     public string[] _aimTags;
+
+    private Vector3 _aimPoint;
+    private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
     
 	void Start ()
     {
@@ -54,9 +57,24 @@ public class PlayerAim : MonoBehaviour
             // Check if a valid hit was found
             if (firstHit.transform)
             {
+                _aimPoint = firstHit.point;
+                _aimingAtGeometry = true;
                 Debug.Log("HIT: " + firstHit.collider.gameObject.name);
 
             }
+            else
+                _aimingAtGeometry = false;
         }
-	}
+        else
+            _aimingAtGeometry = false;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (_aimingAtGeometry)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, _aimPoint);
+        }
+    }
 }

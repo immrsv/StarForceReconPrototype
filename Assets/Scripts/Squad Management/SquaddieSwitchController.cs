@@ -12,10 +12,22 @@ public class SquaddieSwitchController : MonoBehaviour
 
     void Start ()
     {
-		
-	}
-	
-	void Update ()
+        // Add an event handler for squad member switching
+        stSquadManager.OnSwitchSquaddie += StSquadManager_OnSwitchSquaddie;
+    }
+
+    // Event Handler for squad member switching. Handles selecting/deselecting the squad member
+    private void StSquadManager_OnSwitchSquaddie()
+    {
+        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+
+        if (currentSquaddie == this)
+            SelectSquaddie();
+        else
+            DeselectSquaddie();
+    }
+
+    void Update ()
     {
 		
 	}

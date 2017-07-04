@@ -57,8 +57,13 @@ public class CameraController : MonoBehaviour
     {
         _camLerping = true;
         _camLerpProgress = 0.0f;
-        _oldPoint = _focusPoint;
-        _focusPoint = stSquadManager.GetCurrentSquaddie.transform.position;
+
+        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+        if (currentSquaddie)
+        {
+            _oldPoint = _focusPoint;
+            _focusPoint = currentSquaddie.transform.position;
+        }
     }
 
     void Update ()
@@ -77,7 +82,7 @@ public class CameraController : MonoBehaviour
         }
 
         Camera mainCam = Camera.main;
-        
+
         // Get focus point of the camera
         Vector3 focusPoint = GetCenterPoint();
 
@@ -164,5 +169,30 @@ public class CameraController : MonoBehaviour
     {
         Vector3 offset = new Vector3(Mathf.Sin( (_rotation - 90) * Mathf.Deg2Rad ), 0, Mathf.Cos( (_rotation + 90) * Mathf.Deg2Rad) );
         return offset;
+    }
+
+    // Internal use only. Calculates a camera offset based on how far the mouse is from the center of the screen
+    private Vector3 GetAimViewportOffset()
+    {
+        Camera mainCam = Camera.main;
+
+        // Get viewport coordinates for currently selected character
+        Vector2 charScreenPoint = mainCam.WorldToScreenPoint(stSquadManager.GetCurrentSquaddie.transform.position);
+        Vector2 charViewportPoint = mainCam.ScreenToViewportPoint(charScreenPoint);
+
+        if (    charViewportPoint.x > 0.3f
+            &&  charViewportPoint.x < 0.7f
+            &&  charViewportPoint.y > 0.3f
+            &&  charViewportPoint.y < 0.7f )    // Character is close to the center of the screen. Apply aim offset to camera position
+        {
+            // TODO: This implementation needs to be fixed. 
+            Vector2 mouseViewportPoint = mainCam.ScreenToViewportPoint(Input.mousePosition);
+
+            Vector3 diff = new Vector3(mouseViewportPoint.x - charViewportPoint.x, 0, mouseViewportPoint.y - charViewportPoint.y);
+
+            return diff;
+        }
+
+        return new Vector2(0, 0);
     }
 }
