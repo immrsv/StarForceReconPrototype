@@ -68,8 +68,6 @@ public class PlayerAim : MonoBehaviour
             {
                 _aimPoint = firstHit.point;
                 _aimingAtGeometry = true;
-                Debug.Log("HIT: " + firstHit.collider.gameObject.name);
-
             }
             else
                 _aimingAtGeometry = false;
