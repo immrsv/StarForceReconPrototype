@@ -2,267 +2,241 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* This script should be placed on the Main Camera object in the scene.
+ * Controls the camera by smoothly lerping between it's current position and a destination position. */
 public class CameraController : MonoBehaviour
 {
+    // Singleton
     private static CameraController _singletonInstance;
-
     public static CameraController GetInstance
     {
         get { return _singletonInstance; }
     }
 
-    private Vector3 _focusPoint;       // Tracks the main focus of the camera
-    private Vector3 _oldFocusPoint;      // Previous center point. Used for lerping
-    private Vector3 _prevLookPoint;
-    private bool _camLerping = false;
-    private float _camLerpProgress = 0.0f;
+    // Camera instance;
+    private Camera _cam = null;
+    
+    // Data for lerping between look-focus points
+    private Vector3 _currentLookPoint = Vector3.zero;
+    private Vector3 _destinationLookPoint;
+    private Vector3 LookPoint
+    {
+        set { _currentLookPoint = value; }
+    }
 
-    [Range(10.0f, 85.0f)]   public float _pitch = 45.0f;
-    [Range(10.0f, 25.0f)]   public float _idealDistance = 15.0f;
-    [Range(0.0f, 0.6f)]  public float _aimOffsetDistance = 0.25f;
-
+    // Variables to control switching between characters, or to specified points
+    [Header("Point Switching Variables")]
     [Range(0.2f, 0.6f), Tooltip("Time in seconds it takes for the camera to reach a new target location, when switching controlled characters")]
-    public float _switchCharacterTime;     // Time taken for the camera to lerp to new position when switching characters
+    public float _switchCharacterTime = 0.2f;
+    private float _switchTimeCurrent;
+    private bool _isSwitchingToNewPoint = false;
+    private float _camSwitchProgress = 0.0f;
+    private Vector3 _destinationSwitchPoint = Vector3.zero;
+    private Vector3 _currentSwitchPoint = Vector3.zero;
+    private Vector3 _startSwitchPoint = Vector3.zero;
 
-    private List<Transform> _pointsOfInterest;      // A list of positions the camera will aim to keep in view
+    // Look Point Lerping variables
+    [Header("Look-Point Lerping")]
+    [Range(5.0f, 100.0f), Tooltip("The distance at which the camera will start to move at farSpeed.")]
+    public float _farDistance = 50.0f;
+    [Range(10.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
+    public float _farSpeed = 40.0f;
+    [Tooltip("Determines how quickly the camera will lerp towards it's destination.\n\n(x=0) Represents  distance 0; That is, when the camera is very close to it's destination already.\n\n(x=1) Represents the farDistance variable above.\n\n(y=0) Represents a speed of 0.\n\n(y=1) Represents the farSpeed variable above.\nIdeally this curve should have a positive gradient to make the camera slow down as it reaches it's destination.")]
+    public AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.5f, 1, 1.0f);
 
-    // Rotation info
-    [SerializeField]        private float _rotation;
-    [Range(60.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
-    public float _rotationSpeed = 60.0f;
+    // General variables
+    [Header("General")]
+    [Range(7.0f, 30.0f)]public float _hoverDistance = 10.0f;
+    [Range(10.0f, 85.0f)]   public float _pitch = 45.0f;
+    [Range(0.0f, 0.6f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.6: Aiming further away will cause the camera to focus on a point just over half way between the character and their aim point.")]
+    public float _aimOffsetDistance = 0.25f;
+    [Range(100.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
+    public float _rotationSpeed = 150.0f;
+    private float _rotation = 0.0f;
 
-    [Tooltip("Controls the speed the camera will aim to move at when at a given distance from it's focus point. \n(t=0) is the speed when at the focus point, (t=1) is the speed when at the _idealDistance")]
-    public AnimationCurve _speedAtDistance;
-    [Range(1.0f, 40.0f)]  public float _speedModifier = 30.0f;
+    // Start position variables
+    [Header("Start Transform")]
+    [Tooltip("If true, the following settings will be applied to the camera's transform at start")]
+    public bool _overrideTransformAtStart = false;
+    public Vector3 _startPosition = Vector3.zero;
+    public Vector3 _startRotation = Vector3.zero;
+    public Vector3 _startLookPosition = Vector3.zero;
 
-    void Awake ()
+    void Awake()
     {
         // Create singleton instance
         if (!_singletonInstance)
             _singletonInstance = this;
         else
             DestroyImmediate(this); // Instance already exists
-
-        // TODO: Initial placement of camera. Account for rotation, distance, etc.
     }
 
     void Start ()
     {
+        // Get a reference to the camera
+        _cam = Camera.main;
+
+        // Set start transform
+        if (_overrideTransformAtStart)
+        {
+            _cam.transform.position = _startPosition;
+            _cam.transform.rotation = Quaternion.Euler(_startRotation);
+            _rotation = _startRotation.y;
+            _currentLookPoint = _startLookPosition;
+            _destinationLookPoint = _startLookPosition;
+        }
+
         // Set follow points to current squad members location
         SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
-
         if (currentSquaddie)
-        {
-            _oldFocusPoint = currentSquaddie.transform.position;
-            _focusPoint = currentSquaddie.transform.position;
-        }
+            LookAtPosition(currentSquaddie.transform.position, _switchCharacterTime);
 
         // Add an event handler for squad member switching
         stSquadManager.OnSwitchSquaddie += StSquadManager_OnSwitchSquaddie;
-	}
+    }
 
     // Event Handler for squad member switching. Handles cam lerping to new location
     private void StSquadManager_OnSwitchSquaddie()
     {
-        _camLerping = true;
-        _camLerpProgress = 0.0f;
-
+        // Set the camera to switch to the new squaddie's position over _switchCharacterTime seconds.
         SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
         if (currentSquaddie)
-        {
-            _oldFocusPoint = _focusPoint;
-            _focusPoint = currentSquaddie.transform.position;
-            _prevLookPoint = _focusPoint;
-        }
+            LookAtPosition(currentSquaddie.transform.position, _switchCharacterTime);
     }
 
     void Update ()
     {
-        // Handle rotation input
+        if (!_cam) _cam = Camera.main;
+
+        HandleRotation();
+        HandlePointSwitching();
+
+        // If the camera is lerping, no offsets should apply
+        if (_isSwitchingToNewPoint)
+        {
+            _currentLookPoint = _currentSwitchPoint;
+            _destinationLookPoint = _currentSwitchPoint;
+
+            // Get new camera position with offsets
+            Vector3 newPos = _currentLookPoint + GetRotationalOffset() * _hoverDistance;
+            _cam.transform.position = newPos;
+            _cam.transform.LookAt(_currentLookPoint, Vector3.up);
+        }
+        else
+        {
+            // The camera is not lerping. Get a look destination that is offset from the current character's position
+            SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+            if (currentSquaddie)
+            {
+                Vector3 characterPos = currentSquaddie.transform.position;
+                Vector3 aimPointOffset = GetAimOffset();
+
+                Vector3 finalPoint = characterPos + aimPointOffset;
+                FocusOnPoint(finalPoint);
+            }
+            else
+                FocusOnPoint(_currentLookPoint);
+        }
+    }
+
+    /// <summary>
+    /// Sets the camera's current destination to switch to, as well as the time it should take to get there.
+    /// The camera will travel at a constant speed to reach the destination in the specified amount of time.
+    /// </summary>
+    public void LookAtPosition(Vector3 destination, float switchTime)
+    {
+        if (switchTime > 0)
+        {
+            // Lerp to the destination
+            _isSwitchingToNewPoint = true;
+            _camSwitchProgress = 0.0f;
+            _startSwitchPoint = _currentLookPoint;
+            _destinationSwitchPoint = destination;
+            _switchTimeCurrent = switchTime;
+        }
+        else
+        {
+            // Switch immediately
+            _isSwitchingToNewPoint = false;
+            _camSwitchProgress = 0.0f;
+            _startSwitchPoint = _currentLookPoint;
+            _destinationSwitchPoint = destination;
+            _switchTimeCurrent = 0.0f;
+
+            _destinationLookPoint = destination;
+            _currentLookPoint = _destinationLookPoint;
+        }
+    }
+
+    /// <summary>
+    /// Modifies rotation angle via player input
+    /// </summary>
+    private void HandleRotation()
+    {
         if (Input.GetButton("CameraRotation"))
         {
-            // Add or subtract rotation
+            // Add or subtract rotation based on input
             if (Input.GetAxisRaw("CameraRotation") > 0)
                 _rotation += Time.deltaTime * _rotationSpeed;
             else
                 _rotation -= Time.deltaTime * _rotationSpeed;
 
-            // Keep rotation value mapped from 0 to 360
-            MapRotation();
+            // Keep rotation value mapped in the range 0-360
+            if (_rotation < 0.0f || _rotation >= 360.0f)
+            {
+                int rotInt = (int)_rotation;
+                float rotDec = _rotation - (float)rotInt;
+
+                rotInt = rotInt % 360;
+                _rotation = (float)rotInt + rotDec;
+                if (_rotation < 0)
+                    _rotation += 360;
+            }
         }
+    }
 
-        Camera mainCam = Camera.main;
-
-        // Get some offset values
-        Vector3 characterPoint = GetCenterPoint();                              // Focus point for current character in world coords. Lerps when switching characters
-        Vector3 offset = GetRotationalOffset();                                 // Get camera offset based on rotation. This is normalized
-        Vector3 aimOffset = (!_camLerping) ? GetAimOffset() : Vector3.zero;     // Get offset from aim pointer. Only effective if not lerping to a new character
-
-        // Get current & desired positions
-        Vector3 currentPos = mainCam.transform.position;
-        Vector3 lookTargetDesired = (characterPoint + aimOffset);
-
-        // Lerp look target over time
-        Vector3 lookPrevToDesired = (lookTargetDesired - _prevLookPoint);
-        float lookPct = (_prevLookPoint - currentPos).magnitude / (lookTargetDesired - currentPos).magnitude;
-        Vector3 lookTarget = _prevLookPoint + lookPrevToDesired * lookPct;
-
-        Vector3 desiredPos = lookTarget + offset;
-        desiredPos = lookTarget - (lookTarget - desiredPos).normalized * _idealDistance;
-
-        // TEMP: DELETE THIS
-        Debug.DrawRay(lookTarget, Vector3.up);
-        Debug.DrawRay(desiredPos, Vector3.up);
-
-        if (desiredPos != currentPos)
+    /// <summary>
+    /// Moves the camera towards it's destination at a constant speed when a switch action is active
+    /// </summary>
+    private void HandlePointSwitching()
+    {
+        if (_isSwitchingToNewPoint)
         {
-            // Get the vector from the current position to the desired position
-            Vector3 toDesired = desiredPos - currentPos;
+            // Calculate how far into the lerp the camera currently is
+            _camSwitchProgress += Time.deltaTime;
 
-            // Find how far along the _idealDistance the camera is & find the desired speed
-            float movementPercent = (lookTarget - currentPos).magnitude / (lookTarget - desiredPos).magnitude;
-            float distPercent = movementPercent / _idealDistance;
-            float moveSpeedThisFrame = _speedAtDistance.Evaluate(distPercent) * _speedModifier * Time.deltaTime;
-            
-            Vector3 finalOffset = toDesired.normalized * moveSpeedThisFrame;
-            Vector3 finalPos = finalOffset + currentPos;
-            
-            // Check if the new position overshot the desired position
-            if (Vector3.Distance(currentPos, finalPos) > Vector3.Distance(currentPos, desiredPos))
-                finalPos = desiredPos;
-            
-            mainCam.transform.position = finalPos;
-        }
+            // Get value 0-1 for progress through lerp
+            float progress = Mathf.Clamp01(_camSwitchProgress / Mathf.Abs(_switchTimeCurrent));
 
-        mainCam.transform.LookAt(lookTarget);
+            // Check if the switching action should end this frame
+            if (progress == 1)
+                _isSwitchingToNewPoint = false;
 
-        _prevLookPoint = lookTarget;
+            // Get a vector from the point the camera was focussing on when the switch started, to the switch destination
+            Vector3 prevToDest = _destinationSwitchPoint - _startSwitchPoint;
 
-        //// Get desired & current position
-        //Vector3 camFocusPoint = Vector3.forward;
-        //Vector3 desiredPosition = GetNewCameraPosition(out camFocusPoint);
-        //Vector3 currentPosition = mainCam.transform.position;
-        //
-        //Debug.DrawRay(desiredPosition, Vector3.up);
-        //
-        //if (desiredPosition != currentPosition)
-        //{
-        //    // Get the vector from the current position to the desired position
-        //    Vector3 toDesired = desiredPosition - currentPosition;
-        //
-        //    // Find how far along the _idealDistance the camera is & find the desired speed
-        //    float movementPercent = (camFocusPoint - currentPosition).magnitude / (camFocusPoint - desiredPosition).magnitude;
-        //    float distPercent = movementPercent / _idealDistance;
-        //    float moveSpeedThisFrame = _speedAtDistance.Evaluate(distPercent) * _speedModifier * Time.deltaTime;
-        //
-        //    Vector3 finalOffset = toDesired.normalized * moveSpeedThisFrame;
-        //    Vector3 finalPos = finalOffset + currentPosition;
-        //
-        //    // Check if the new position overshot the desired position
-        //    if (Vector3.Distance(currentPosition, finalPos) > Vector3.Distance(currentPosition, desiredPosition))
-        //        finalPos = desiredPosition;
-        //
-        //    mainCam.transform.position = finalPos;
-        //}
-        //
-        //mainCam.transform.LookAt(camFocusPoint);
-    }
-
-    // Adds the specified transform as a point of interest for the camera
-    public void PushPointOfInterest(Transform t)
-    {
-        if (t)
-            _pointsOfInterest.Add(t);
-    }
-
-    // Removes the specified transform as a point of interest for the camera
-    public void PopPointOfInterest(Transform t)
-    {
-        if (t)
-            _pointsOfInterest.RemoveAll(trans => trans == t);
-    }
-    
-    // Internal use only. Keeps rotation value mapped between 0 & 360
-    private void MapRotation()
-    {
-        if (_rotation < 0.0f || _rotation >= 360.0f)
-        {
-            int rotInt = (int)_rotation;
-            float rotDec = _rotation - (float)rotInt;
-
-            rotInt = rotInt % 360;
-            _rotation = (float)rotInt + rotDec;
-            if (_rotation < 0)
-                _rotation += 360;
+            // Get the position between both points @ progress
+            Vector3 point = _startSwitchPoint + (prevToDest * progress);
+            _currentSwitchPoint = point;
         }
     }
 
-    // Internal use only. Calculates the final camera offset & lerps to it
-    private Vector3 GetNewCameraPosition(out Vector3 lookPoint)
-    {
-        Camera mainCam = Camera.main;
-
-        // Get focus point of the camera
-        Vector3 focusPoint = GetCenterPoint();
-
-        // Find how close the focusPoint is from it's desired point
-        float diff = (focusPoint - _focusPoint).magnitude;
-
-        // Get camera offset based on rotation
-        Vector3 offset = GetRotationalOffset();
-
-        // Get offset from aim pointer
-        Vector3 aimOffset = (diff < 0.5f) ? GetAimOffset() : Vector3.zero;
-
-        lookPoint = focusPoint + aimOffset;
-        Vector3 desiredPos = lookPoint + offset * _idealDistance;
-        
-        return desiredPos;
-    }
-
-    // Internal use only. Handles lerping of center point when switching between characters
-    private Vector3 GetCenterPoint()
-    {
-        if (!_camLerping)
-            return _focusPoint;
-
-        // Calculate how far into the lerp the camera currently is
-        _camLerpProgress += Time.deltaTime;
-
-        // Get value 0-1 for progress through lerp
-        float progress = _camLerpProgress / _switchCharacterTime;
-
-        // Check for end of lerp
-        if (_camLerpProgress >= _switchCharacterTime)
-        {
-            _camLerpProgress = _switchCharacterTime;
-            _camLerping = false;
-        }
-
-        // Clamp progress value.
-        if (progress > 1.0f)    progress = 1.0f;
-
-        // Get a vector from the old point to the new point
-        Vector3 prevToCurrentPoint = _focusPoint - _oldFocusPoint;
-
-        // Get the position between both points @ progress
-        Vector3 point = _oldFocusPoint + (prevToCurrentPoint * progress);
-        
-        return point;
-    }
-
-    // Internal use only. Calculates the camera offset based on rotation
+    /// <summary>
+    /// Returns a normalized Vector3 for the camera offset based on rotation & pitch
+    /// </summary>
     private Vector3 GetRotationalOffset()
     {
-        Vector3 offset = new Vector3(Mathf.Sin( (_rotation - 90) * Mathf.Deg2Rad ), 
-                                        Mathf.Tan(_pitch * Mathf.Deg2Rad), 
-                                        Mathf.Cos( (_rotation + 90) * Mathf.Deg2Rad) );
+        Vector3 offset = new Vector3(   Mathf.Sin((_rotation - 90) * Mathf.Deg2Rad),
+                                        Mathf.Tan(_pitch * Mathf.Deg2Rad),
+                                        Mathf.Cos((_rotation + 90) * Mathf.Deg2Rad));
 
         offset = offset.normalized;
         return offset;
     }
 
-    // Internal use only. Calculates a camera offset based on how far the mouse is from the center of the screen
+    /// <summary>
+    /// Returns a Vector3 for the camera offset based on where the currently controlled squad member is aiming.
+    /// </summary>
     private Vector3 GetAimOffset()
     {
         if (_aimOffsetDistance > 0)
@@ -280,11 +254,65 @@ public class CameraController : MonoBehaviour
                         Vector3 aimPoint = aimScript.GetAimPoint;
                         Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
 
-                        return offsetPoint * _aimOffsetDistance;
+                        return offsetPoint * Mathf.Clamp01(_aimOffsetDistance);
                     }
                 }
             }
         }
         return Vector3.zero;
+    }
+
+    /// <summary>
+    /// Sets the destination look point to the specified point & transitions the camera over time
+    /// </summary>
+    private void FocusOnPoint(Vector3 point)
+    {
+        _destinationLookPoint = point;
+
+        // Check if the look point is already at it's destination
+        if (Vector3.Distance(_currentLookPoint, _destinationLookPoint) > 0)
+        {
+            // Get the vector from the current look point to the destination look point
+            Vector3 currentToDest = _destinationLookPoint - _currentLookPoint;
+            float distFromDest = currentToDest.magnitude;
+
+            // Calculate which point on the speed-graph this distance corresponds to & get speed at that point
+            float distOnGraph = Mathf.Clamp01(distFromDest / _farDistance);
+            float speedAtDistance = _farSpeed * _speedAtDistance.Evaluate(distOnGraph);
+            float speedThisFrame = speedAtDistance * Time.deltaTime;
+
+            // Find the new focus point
+            Vector3 newLookPoint = _currentLookPoint + (currentToDest.normalized * speedThisFrame);
+
+            // Check for overshoot
+            if (Vector3.Distance(_currentLookPoint, newLookPoint) > Vector3.Distance(_currentLookPoint, _destinationLookPoint))
+                newLookPoint = _destinationLookPoint;
+
+            // Set the look point
+            _currentLookPoint = newLookPoint;
+        }
+
+        // Get new camera position with offsets
+        Vector3 newPos = _currentLookPoint + GetRotationalOffset() * _hoverDistance;
+        _cam.transform.position = newPos;
+        _cam.transform.LookAt(_currentLookPoint, Vector3.up);
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(_destinationLookPoint, 0.4f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_currentLookPoint, 0.3f);
+
+        if (_overrideTransformAtStart)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(_startPosition, 0.2f);
+            Gizmos.DrawRay(_startPosition, Quaternion.Euler(_startRotation) * -Vector3.forward);
+
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(_startLookPosition, 0.2f);
+        }
     }
 }
