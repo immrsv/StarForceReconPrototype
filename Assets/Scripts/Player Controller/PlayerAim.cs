@@ -12,6 +12,15 @@ public class PlayerAim : MonoBehaviour
 
     private Vector3 _aimPoint;
     private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
+
+    public Vector3 GetAimPoint
+    {
+        get { return _aimPoint; }
+    }
+    public bool IsAiming
+    {
+        get { return _aimingAtGeometry; }
+    }
     
 	void Start ()
     {
@@ -59,8 +68,6 @@ public class PlayerAim : MonoBehaviour
             {
                 _aimPoint = firstHit.point;
                 _aimingAtGeometry = true;
-                Debug.Log("HIT: " + firstHit.collider.gameObject.name);
-
             }
             else
                 _aimingAtGeometry = false;
@@ -71,7 +78,7 @@ public class PlayerAim : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (_aimingAtGeometry)
+        if (enabled && _aimingAtGeometry)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, _aimPoint);
