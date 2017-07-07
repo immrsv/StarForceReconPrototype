@@ -87,19 +87,21 @@ public class CameraController : MonoBehaviour
         }
 
         // Set follow points to current squad members location
-        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+        SquaddieController currentSquaddie = stSquadManager.GetCurrentSquaddie;
         if (currentSquaddie)
             LookAtPosition(currentSquaddie.transform.position, _switchCharacterTime);
 
         // Add an event handler for squad member switching
         stSquadManager.OnSwitchSquaddie += StSquadManager_OnSwitchSquaddie;
     }
-
-    // Event Handler for squad member switching. Handles cam lerping to new location
+    
+    /// <summary>
+    /// Event Handler for squad member switching. Handles cam lerping to new location
+    /// </summary>
     private void StSquadManager_OnSwitchSquaddie()
     {
         // Set the camera to switch to the new squaddie's position over _switchCharacterTime seconds.
-        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+        SquaddieController currentSquaddie = stSquadManager.GetCurrentSquaddie;
         if (currentSquaddie)
             LookAtPosition(currentSquaddie.transform.position, _switchCharacterTime);
     }
@@ -125,7 +127,7 @@ public class CameraController : MonoBehaviour
         else
         {
             // The camera is not lerping. Get a look destination that is offset from the current character's position
-            SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+            SquaddieController currentSquaddie = stSquadManager.GetCurrentSquaddie;
             if (currentSquaddie)
             {
                 Vector3 characterPos = currentSquaddie.transform.position;
@@ -242,7 +244,7 @@ public class CameraController : MonoBehaviour
         if (_aimOffsetDistance > 0)
         {
             // Get a reference to the current squaddie's aim script
-            SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+            SquaddieController currentSquaddie = stSquadManager.GetCurrentSquaddie;
             if (currentSquaddie)
             {
                 PlayerAim aimScript = currentSquaddie.gameObject.GetComponent<PlayerAim>();
@@ -251,7 +253,7 @@ public class CameraController : MonoBehaviour
                     // Get aim point
                     if (aimScript.IsAiming)
                     {
-                        Vector3 aimPoint = aimScript.GetAimPoint;
+                        Vector3 aimPoint = aimScript.GetAimMousePoint;
                         Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
 
                         return offsetPoint * Mathf.Clamp01(_aimOffsetDistance);

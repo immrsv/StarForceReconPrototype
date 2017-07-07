@@ -11,11 +11,11 @@ public static class stSquadManager
     public static event EventHandler OnSwitchSquaddie;  // This event is called every time the selected squad member is changed
 
     // Selection variables
-    private static List<SquaddieSwitchController> _squadMembers;
+    private static List<SquaddieController> _squadMembers;
     private static int _selectedIndex;
-    private static SquaddieSwitchController _selected = null;
+    private static SquaddieController _selected = null;
 
-    public static SquaddieSwitchController GetCurrentSquaddie
+    public static SquaddieController GetCurrentSquaddie
     {
         get { return _selected; }
     }
@@ -27,9 +27,12 @@ public static class stSquadManager
         if (switchEvent != null)    // Check there are registered listeners before firing event
             switchEvent();
     }
-
-    // Sets the list of controllable squad members
-    public static void SetSquadList(List<SquaddieSwitchController> members)
+    
+    /// <summary>
+    /// Sets the list of controllable squad members
+    /// </summary>
+    /// <param name="members"></param>
+    public static void SetSquadList(List<SquaddieController> members)
     {
         // Call switch event with null selection
         _selected = null;
@@ -48,12 +51,15 @@ public static class stSquadManager
         }
     }
 
-    public static SquaddieSwitchController Switch(bool reverse = false)
+    /// <summary>
+    /// Switches to the next available character. Will iterate backwards if reverse is true.
+    /// </summary>
+    public static void Switch(bool reverse = false)
     {
         if (_squadMembers.Count == 0)
         {
             Debug.LogWarning("Warning: No current squad members. Cannot switch.");
-            return null;
+            return;
         }
 
         if (_squadMembers.Count == 1)
@@ -61,7 +67,6 @@ public static class stSquadManager
             // Only one squad member available
             _selected = _squadMembers[0];
             _selectedIndex = 0;
-            return _selected;
         }
 
         // Get index of the next squad member
@@ -89,11 +94,13 @@ public static class stSquadManager
 
         // Trigger switch event
         SafeFireOnSwitchSquaddie();
-
-        return _selected;
     }
 
     // Switches to a character at the specified zero-based index
+    /// <summary>
+    /// Switches to a character at the specified zero-based index. Returns true if 
+    /// the switch was successful, otherwise returns false.
+    /// </summary>
     public static bool SwitchTo(int index)
     {
         if (index >= 0 && index < _squadMembers.Count)
