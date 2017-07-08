@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /* This script should be placed on each playable squad member in the scene. 
+ * This is the main 'hub' for all playable character related scripts.
  * Handles enabling/disabling of character AI & Controller scripts when switching to and from squad member. */
-public class SquaddieSwitchController : MonoBehaviour
+public class SquaddieController : MonoBehaviour
 {
 
+    // Switcher variables
+    [Header("Character Switching")]
+    [Tooltip("A list of AI scripts which will be enabled when the character is not being controlled by the player")]
     public List<MonoBehaviour> _AIScripts;
+    [Tooltip("A list of Controller scripts which will be enabled when the character is being controlled by the player")]
     public List<MonoBehaviour> _ControllerScripts;
 
     void Start ()
@@ -16,10 +21,12 @@ public class SquaddieSwitchController : MonoBehaviour
         stSquadManager.OnSwitchSquaddie += StSquadManager_OnSwitchSquaddie;
     }
 
-    // Event Handler for squad member switching. Handles selecting/deselecting the squad member
+    /// <summary>
+    /// Event Handler for squad member switching. Handles cam lerping to new location
+    /// </summary>
     private void StSquadManager_OnSwitchSquaddie()
     {
-        SquaddieSwitchController currentSquaddie = stSquadManager.GetCurrentSquaddie;
+        SquaddieController currentSquaddie = stSquadManager.GetCurrentSquaddie;
 
         if (currentSquaddie == this)
             SelectSquaddie();
@@ -27,12 +34,10 @@ public class SquaddieSwitchController : MonoBehaviour
             DeselectSquaddie();
     }
 
-    void Update ()
-    {
-		
-	}
-
-    // Internal use only. Sets all elements in list to bool state
+    /// <summary>
+    /// Sets all elements in the list to bool state. Useful for disabling all AI scripts
+    /// when switching to a character, etc.
+    /// </summary>
     private void SetListEnableState(List<MonoBehaviour> list, bool state)
     {
         foreach (MonoBehaviour m in list)
@@ -41,16 +46,20 @@ public class SquaddieSwitchController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Enables AI & disables Controller scripts so the squad member is played by the AI
+    /// </summary>
     public void DeselectSquaddie()
     {
-        // Enable AI, disable Controller scripts
         SetListEnableState(_AIScripts, true);
         SetListEnableState(_ControllerScripts, false);
     }
 
+    /// <summary>
+    /// Disables AI & enables Controller scripts so the player is controlling this squad member
+    /// </summary>
     public void SelectSquaddie()
     {
-        // Disable AI, enable Controller scripts
         SetListEnableState(_AIScripts, false);
         SetListEnableState(_ControllerScripts, true);
     }

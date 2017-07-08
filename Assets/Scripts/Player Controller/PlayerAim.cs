@@ -6,16 +6,22 @@ using UnityEngine;
  * Handles player aiming. */
 public class PlayerAim : MonoBehaviour
 {
+    [Tooltip("Where the player character sees out of. This should be an child empty GameObject at the character's head.")]
+    public Transform _eyes;
+    private LogOnce _eyesWarningMessage = new LogOnce("Warning: No eyes transform specified on PlayerAim script.", LogOnce.LogType.Warning);
 
     [Tooltip("A list of tags the player can aim at. The player will aim at the first object under the mouse which has a tag included in this list.")]
     public string[] _aimTags;
 
-    private Vector3 _aimPoint;
+    private Vector3 _aimMousePoint;
     private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
 
-    public Vector3 GetAimPoint
+    /// <summary>
+    /// Returns the point under the mouse. For the actual aim point, use GetAimPoint
+    /// </summary>
+    public Vector3 GetAimMousePoint
     {
-        get { return _aimPoint; }
+        get { return _aimMousePoint; }
     }
     public bool IsAiming
     {
@@ -24,10 +30,25 @@ public class PlayerAim : MonoBehaviour
     
 	void Start ()
     {
-		
-	}
+        _eyesWarningMessage.SetSender(gameObject);
+    }
 	
 	void Update ()
+    {
+        GetHitUnderMouse();
+
+        if (_eyes)
+        {
+            if (_aimingAtGeometry)
+            {
+                // TODO: Check if the player can see the aim point. If not, aim up a bit
+            }
+        }
+        else
+            _eyesWarningMessage.Log();
+    }
+
+    private void GetHitUnderMouse()
     {
         // Get ray through main camera @ mouse position
         Camera mainCam = Camera.main;
@@ -40,9 +61,9 @@ public class PlayerAim : MonoBehaviour
         if (rayHits.Length > 0)
         {
             // Sort by distance from camera
-            System.Array.Sort(rayHits, delegate(RaycastHit r1, RaycastHit r2) {
+            System.Array.Sort(rayHits, delegate (RaycastHit r1, RaycastHit r2) {
                 return Vector3.Distance(mainCamPos, r1.point).CompareTo(Vector3.Distance(mainCamPos, r2.point));
-            } );
+            });
 
             // Loop through each hit & compare to allowed tags to find the first valid hit
             RaycastHit firstHit = new RaycastHit();
@@ -54,7 +75,7 @@ public class PlayerAim : MonoBehaviour
                 string found = null;
                 found = System.Array.Find(_aimTags, delegate (string s) {
                     return s == hit.transform.tag;
-                } );
+                });
 
                 if (found != null)
                 {
@@ -66,7 +87,7 @@ public class PlayerAim : MonoBehaviour
             // Check if a valid hit was found
             if (firstHit.transform)
             {
-                _aimPoint = firstHit.point;
+                _aimMousePoint = firstHit.point;
                 _aimingAtGeometry = true;
             }
             else
@@ -81,7 +102,7 @@ public class PlayerAim : MonoBehaviour
         if (enabled && _aimingAtGeometry)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, _aimPoint);
+            Gizmos.DrawLine(transform.position, _aimMousePoint);
         }
     }
 }
