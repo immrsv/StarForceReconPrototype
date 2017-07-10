@@ -54,7 +54,7 @@ public class LogOnce
     {
         if (!_hasFired)
         {
-            string logString = (_sender) ? _sender.name + "\n" + _s : _s;
+            string logString = (_sender) ? "Sender: " + _sender.name + "\nMessage:" + _s : _s;
 
             switch (_type)
             {

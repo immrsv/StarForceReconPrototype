@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using JakePerry;
+
 /* This script should be placed on the Main Camera object in the scene.
  * Controls the camera by smoothly lerping between it's current position and a destination position. */
 public class CameraController : MonoBehaviour
@@ -46,9 +48,9 @@ public class CameraController : MonoBehaviour
 
     // General variables
     [Header("General")]
-    [Range(7.0f, 30.0f)]public float _hoverDistance = 10.0f;
+    [Range(7.0f, 30.0f)]    public float _hoverDistance = 10.0f;
     [Range(10.0f, 85.0f)]   public float _pitch = 45.0f;
-    [Range(0.0f, 0.6f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.6: Aiming further away will cause the camera to focus on a point just over half way between the character and their aim point.")]
+    [Range(0.0f, 0.5f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.5: Aiming further away will cause the camera to focus on a point half way between the character and their aim point.")]
     public float _aimOffsetDistance = 0.25f;
     [Range(100.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
     public float _rotationSpeed = 150.0f;
@@ -68,7 +70,10 @@ public class CameraController : MonoBehaviour
         if (!_singletonInstance)
             _singletonInstance = this;
         else
+        {
+            Debug.LogWarning("Warning: An instance of the CameraController script already exists. Instance will be deleted on object: " + gameObject.name);
             DestroyImmediate(this); // Instance already exists
+        }
     }
 
     void Start ()
