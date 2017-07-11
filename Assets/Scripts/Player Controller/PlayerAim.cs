@@ -8,9 +8,9 @@ using JakePerry;
  * Handles player aiming. */
 public class PlayerAim : MonoBehaviour
 {
-    [Tooltip("Where the player character sees out of. This should be an child empty GameObject at the character's head.")]
-    public Transform _eyes;
-    private LogOnce _eyesWarningMessage = null;
+    [Tooltip("Where the character's gun fires from. This should be an empty gameobject at the end of the gun barrel.")]
+    public Transform _gunOrigin;
+    private LogOnce _gunOriginWarningMessage = null;
 
     [Tooltip("A list of tags the player can aim at. The player will aim at the first object under the mouse which has a tag included in this list.")]
     public string[] _aimTags;
@@ -42,7 +42,7 @@ public class PlayerAim : MonoBehaviour
 
     void Awake()
     {
-        _eyesWarningMessage = new LogOnce("Warning: No eyes transform specified on PlayerAim script.", LogOnce.LogType.Warning, gameObject);
+        _gunOriginWarningMessage = new LogOnce("Warning: No gun origin transform specified on PlayerAim script.", LogOnce.LogType.Warning, gameObject);
     }
     
 	void Start ()
@@ -118,16 +118,16 @@ public class PlayerAim : MonoBehaviour
         if (!_mousePointCollider)
             return _aimMousePoint;
 
-        if (_eyes)
+        if (_gunOrigin)
         {
             // Get ray from character's eyes to mouse aim point & get hits along ray
-            Ray ray = new Ray(_eyes.position, _aimMousePoint - _eyes.position);
+            Ray ray = new Ray(_gunOrigin.position, _aimMousePoint - _gunOrigin.position);
             RaycastHit[] hits = Physics.RaycastAll(ray);
 
             if (hits.Length > 0)
             {
                 // Sort hits array by distance from character, and apply aimTags mask
-                hits.SortByDistance(_eyes.position);
+                hits.SortByDistance(_gunOrigin.position);
                 hits = Utils.ApplyTagMask(hits, _aimTags);
 
                 // TESTING: DELETE LATER!!!
@@ -146,23 +146,36 @@ public class PlayerAim : MonoBehaviour
                 if (hitTransform == underMouseTransform)
                     return closestHit.point;
 
-                // If the code reaches this point, there is something obstructing the character's view
-                // of the point under the mouse. The script will attempt to find a new point
+                /* NOTE: If the code reaches this point, there is something obstructing the character's view
+                 * of the point under the mouse. The script will attempt to find a new point */
+
+                // Get the bounds of the transform under the mouse
+                Collider parentColliderUnderMouse = underMouseTransform.GetComponent<Collider>();
+                if (!parentColliderUnderMouse)
+                    parentColliderUnderMouse = _mousePointCollider;
+
+                Bounds bounds = parentColliderUnderMouse.GetGroupedBounds();
+
+                // Find the distance from opposite corners
+                float radius = Vector3.Distance(bounds.min, bounds.max);
+
+                // TODO: Use a spherecast with this radius
+                
 
                 // TODO: Finish this
                 return _aimMousePoint;
             }
             else
             {
-                // Something probably went wrong, the ray should've hit the _aimMousePoint.
-                // This could be an issue if the function is called somewhere when _aimingAtGeometry
-                // is false
+                /* Something probably went wrong, the ray should've hit the _aimMousePoint.
+                 * This could be an issue if the function is called somewhere when 
+                 * _aimingAtGeometry is false */
                 return _aimMousePoint;
             }
         }
         else
         {
-            _eyesWarningMessage.Log();
+            _gunOriginWarningMessage.Log();
             return _aimMousePoint;
         }
     }
@@ -172,11 +185,11 @@ public class PlayerAim : MonoBehaviour
         if (enabled && _aimingAtGeometry)
         {
             Gizmos.color = Color.red;
-            if (_eyes)
-                Gizmos.DrawLine(_eyes.position, _aimMousePoint);
+            if (_gunOrigin)
+                Gizmos.DrawLine(_gunOrigin.position, _aimMousePoint);
             else
                 Gizmos.DrawLine(transform.position, _aimMousePoint);
-            Bounds b = _mousePointCollider.GetFullBounds();
+            Bounds b = _mousePointCollider.GetGroupedBounds();
             Gizmos.DrawWireCube(b.center, b.size);
 
             Gizmos.DrawWireSphere(_aimPoint, 0.2f);

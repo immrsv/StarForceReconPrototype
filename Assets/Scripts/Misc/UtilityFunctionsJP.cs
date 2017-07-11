@@ -232,43 +232,23 @@ namespace JakePerry
         /// Returns bounds for all colliders attached to any child
         /// objects of this collider's transform.
         /// </summary>
-        public static Bounds GetFullBounds(this Collider col)
+        public static Bounds GetGroupedBounds(this Collider col)
         {
-            // TODO: FIX THIS!
-            // Find the top-level parent object
             Transform t = col.transform;
+            Bounds colBounds = col.bounds;
 
             // Get an array of all colliders on the object & child objects
             Collider[] colliders = t.GetComponentsInChildren<Collider>(false);
 
-            // Variables for tracking minimum & maximum points
-            Vector3 minPoint = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 maxPoint = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-
-            // Iterate through each collider to find its extents
+            // Iterate through each collider and encapsulate its bounds
             foreach (Collider c in colliders)
             {
                 // Get bounds info
                 Bounds b = c.bounds;
-                Vector3 worldCenter = b.center;
-                Debug.DrawRay(worldCenter, Vector3.up * 5);
-                Vector3 extents = b.extents;
-
-                // Find corners of bounding box
-                Vector3 minCorner = worldCenter - extents;
-                Vector3 maxCorner = worldCenter + extents;
-                //Debug.DrawRay(minCorner, Vector3.up);
-                //Debug.DrawRay(maxCorner, Vector3.up);
-
-                minPoint = minPoint.GetMinComponents(minCorner);
-                maxPoint = maxPoint.GetMaxComponents(maxCorner);
+                colBounds.Encapsulate(b);
             }
 
-            // Find the center point between the minPoint and maxPoint
-            Vector3 center = (minPoint + maxPoint) / 2;
-            Vector3 size = (maxPoint - minPoint) / 2;
-
-            return new Bounds(center, size);
+            return colBounds;
         }
 
         /// <summary>
