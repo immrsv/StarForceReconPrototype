@@ -39,12 +39,12 @@ public class CameraController : MonoBehaviour
 
     // Look Point Lerping variables
     [Header("Look-Point Lerping")]
-    [Range(5.0f, 100.0f), Tooltip("The distance at which the camera will start to move at farSpeed.")]
-    public float _farDistance = 50.0f;
-    [Range(10.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
-    public float _farSpeed = 40.0f;
+    [Range(5.0f, 30.0f), Tooltip("The distance at which the camera will start to move at farSpeed.")]
+    public float _farDistance = 10.0f;
+    [Range(40.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
+    public float _farSpeed = 95.0f;
     [Tooltip("Determines how quickly the camera will lerp towards it's destination.\n\n(x=0) Represents  distance 0; That is, when the camera is very close to it's destination already.\n\n(x=1) Represents the farDistance variable above.\n\n(y=0) Represents a speed of 0.\n\n(y=1) Represents the farSpeed variable above.\nIdeally this curve should have a positive gradient to make the camera slow down as it reaches it's destination.")]
-    public AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.5f, 1, 1.0f);
+    public AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
 
     // General variables
     [Header("General")]
@@ -305,7 +305,7 @@ public class CameraController : MonoBehaviour
         _cam.transform.LookAt(_currentLookPoint, Vector3.up);
     }
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(_destinationLookPoint, 0.4f);

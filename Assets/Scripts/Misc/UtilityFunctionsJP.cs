@@ -125,6 +125,84 @@ namespace JakePerry
 
             return collectionClone.ToArray();
         }
+
+        /// <summary>
+        /// Filters the specified collection and returns an array of only instances
+        /// which belong to the specified transform's hierarchy
+        /// </summary>
+        public static Transform[] GetChildrenOf(Transform parent, Transform[] collection)
+        {
+            List<Transform> collectionClone = new List<Transform>(collection);
+
+            // Loop through each object in the clone list
+            int i = 0;
+            while (i < collectionClone.Count)
+            {
+                Transform t = collectionClone[i];
+
+                bool match = (t.IsChildOf(parent));
+
+                // Remove element if there was no match, else increment i
+                if (!match)
+                    collectionClone.RemoveAt(i);
+                else
+                    i++;
+            }
+
+            return collectionClone.ToArray();
+        }
+
+        /// <summary>
+        /// Filters the specified collection and returns an array of only instances
+        /// which belong to the specified transform's hierarchy
+        /// </summary>
+        public static RaycastHit[] GetChildrenOf(Transform parent, RaycastHit[] collection)
+        {
+            List<RaycastHit> collectionClone = new List<RaycastHit>(collection);
+
+            // Loop through each object in the clone list
+            int i = 0;
+            while (i < collectionClone.Count)
+            {
+                Transform t = collectionClone[i].transform;
+
+                bool match = (t.IsChildOf(parent));
+
+                // Remove element if there was no match, else increment i
+                if (!match)
+                    collectionClone.RemoveAt(i);
+                else
+                    i++;
+            }
+
+            return collectionClone.ToArray();
+        }
+
+        /// <summary>
+        /// Filters the specified collection and returns an array of only instances
+        /// which belong to the specified transform's hierarchy
+        /// </summary>
+        public static Collider[] GetChildrenOf(Transform parent, Collider[] collection)
+        {
+            List<Collider> collectionClone = new List<Collider>(collection);
+
+            // Loop through each object in the clone list
+            int i = 0;
+            while (i < collectionClone.Count)
+            {
+                Transform t = collectionClone[i].transform;
+
+                bool match = (t.IsChildOf(parent));
+
+                // Remove element if there was no match, else increment i
+                if (!match)
+                    collectionClone.RemoveAt(i);
+                else
+                    i++;
+            }
+
+            return collectionClone.ToArray();
+        }
     }
 
     /* A collection of Extension methods */

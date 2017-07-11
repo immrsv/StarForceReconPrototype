@@ -56,6 +56,9 @@ public static class stSquadManager
     /// </summary>
     public static void Switch(bool reverse = false)
     {
+        if (!stSettings.CanSwitchSquadMembers)
+            return;
+
         if (_squadMembers.Count == 0)
         {
             Debug.LogWarning("Warning: No current squad members. Cannot switch.");
@@ -95,14 +98,16 @@ public static class stSquadManager
         // Trigger switch event
         SafeFireOnSwitchSquaddie();
     }
-
-    // Switches to a character at the specified zero-based index
+    
     /// <summary>
     /// Switches to a character at the specified zero-based index. Returns true if 
     /// the switch was successful, otherwise returns false.
     /// </summary>
     public static bool SwitchTo(int index)
     {
+        if (!stSettings.CanSwitchSquadMembers)
+            return false;
+
         if (index >= 0 && index < _squadMembers.Count)
         {
             if (index != _selectedIndex)

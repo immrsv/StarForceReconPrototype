@@ -120,9 +120,9 @@ public class PlayerAim : MonoBehaviour
 
         if (_gunOrigin)
         {
-            // Get ray from character's eyes to mouse aim point & get hits along ray
-            Ray ray = new Ray(_gunOrigin.position, _aimMousePoint - _gunOrigin.position);
-            RaycastHit[] hits = Physics.RaycastAll(ray);
+            // Get ray from character's gun origin to mouse aim point & get hits along ray
+            Ray gunToMousePointRay = new Ray(_gunOrigin.position, _aimMousePoint - _gunOrigin.position);
+            RaycastHit[] hits = Physics.RaycastAll(gunToMousePointRay, Vector3.Distance(_gunOrigin.position, _aimMousePoint));
 
             if (hits.Length > 0)
             {
@@ -159,7 +159,17 @@ public class PlayerAim : MonoBehaviour
                 // Find the distance from opposite corners
                 float radius = Vector3.Distance(bounds.min, bounds.max);
 
-                // TODO: Use a spherecast with this radius
+                // Get ray from gun origin to parent transform under mouse point
+                Ray gunToTransformRay = new Ray(_gunOrigin.position, underMouseTransform.position - _gunOrigin.position);
+                RaycastHit[] hits2 = Physics.SphereCastAll(gunToTransformRay, radius);
+
+                // Filter hits2 array to get only children of the transform under the mouse
+                hits2 = Utils.GetChildrenOf(underMouseTransform, hits2);
+                
+                if (hits2.Length > 0)
+                {
+
+                }
                 
 
                 // TODO: Finish this
@@ -189,6 +199,7 @@ public class PlayerAim : MonoBehaviour
                 Gizmos.DrawLine(_gunOrigin.position, _aimMousePoint);
             else
                 Gizmos.DrawLine(transform.position, _aimMousePoint);
+
             Bounds b = _mousePointCollider.GetGroupedBounds();
             Gizmos.DrawWireCube(b.center, b.size);
 
