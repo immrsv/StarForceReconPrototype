@@ -6,6 +6,7 @@ using JakePerry;
 
 /* This script should be placed on the Main Camera object in the scene.
  * Controls the camera by smoothly lerping between it's current position and a destination position. */
+[DisallowMultipleComponent()]
 public class CameraController : MonoBehaviour
 {
     // Singleton
@@ -29,7 +30,7 @@ public class CameraController : MonoBehaviour
     // Variables to control switching between characters, or to specified points
     [Header("Point Switching Variables")]
     [Range(0.2f, 0.6f), Tooltip("Time in seconds it takes for the camera to reach a new target location, when switching controlled characters")]
-    public float _switchCharacterTime = 0.2f;
+    [SerializeField()]  private float _switchCharacterTime = 0.2f;
     private float _switchTimeCurrent;
     private bool _isSwitchingToNewPoint = false;
     private float _camSwitchProgress = 0.0f;
@@ -40,29 +41,29 @@ public class CameraController : MonoBehaviour
     // Look Point Lerping variables
     [Header("Look-Point Lerping")]
     [Range(5.0f, 30.0f), Tooltip("The distance at which the camera will start to move at farSpeed.")]
-    public float _farDistance = 10.0f;
+    [SerializeField()]  private float _farDistance = 10.0f;
     [Range(40.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
-    public float _farSpeed = 95.0f;
+    [SerializeField()]  private float _farSpeed = 95.0f;
     [Tooltip("Determines how quickly the camera will lerp towards it's destination.\n\n(x=0) Represents  distance 0; That is, when the camera is very close to it's destination already.\n\n(x=1) Represents the farDistance variable above.\n\n(y=0) Represents a speed of 0.\n\n(y=1) Represents the farSpeed variable above.\nIdeally this curve should have a positive gradient to make the camera slow down as it reaches it's destination.")]
-    public AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
+    [SerializeField()]  private AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
 
     // General variables
     [Header("General")]
-    [Range(7.0f, 30.0f)]    public float _hoverDistance = 10.0f;
-    [Range(10.0f, 85.0f)]   public float _pitch = 45.0f;
+    [Range(7.0f, 30.0f), SerializeField()]    private float _hoverDistance = 20.0f;
+    [Range(10.0f, 85.0f), SerializeField()]   private float _pitch = 45.0f;
     [Range(0.0f, 0.5f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.5: Aiming further away will cause the camera to focus on a point half way between the character and their aim point.")]
-    public float _aimOffsetDistance = 0.25f;
+    [SerializeField()]  private float _aimOffsetDistance = 0.25f;
     [Range(100.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
-    public float _rotationSpeed = 150.0f;
+    [SerializeField()]  private float _rotationSpeed = 150.0f;
     private float _rotation = 0.0f;
 
     // Start position variables
     [Header("Start Transform")]
     [Tooltip("If true, the following settings will be applied to the camera's transform at start")]
-    public bool _overrideTransformAtStart = false;
-    public Vector3 _startPosition = Vector3.zero;
-    public Vector3 _startRotation = Vector3.zero;
-    public Vector3 _startLookPosition = Vector3.zero;
+    [SerializeField()]  private bool _overrideTransformAtStart = false;
+    [SerializeField()]  private Vector3 _startPosition = Vector3.zero;
+    [SerializeField()]  private Vector3 _startRotation = Vector3.zero;
+    [SerializeField()]  private Vector3 _startLookPosition = Vector3.zero;
 
     void Awake()
     {

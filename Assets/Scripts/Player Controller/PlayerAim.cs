@@ -6,14 +6,23 @@ using JakePerry;
 
 /* This script should be placed on each playable squad member in the scene. 
  * Handles player aiming. */
+[DisallowMultipleComponent()]
 public class PlayerAim : MonoBehaviour
 {
     [Tooltip("Where the character's gun fires from. This should be an empty gameobject at the end of the gun barrel.")]
-    public Transform _gunOrigin;
+    [SerializeField()]  private Transform _gunOrigin;
     private LogOnce _gunOriginWarningMessage = null;
 
+    [Header("Smart Aim")]
+    [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Increasing this number will increase the amount of checks done exponentially. Please take performance into consideration.")]
+    [SerializeField()]  private int _smartAimIterations = 3;
+    [Tooltip("An array of tags that will be ignored by the smart aim functionality. If the cursor point is over a transform with a tag found in this array, the script will not attempt to find an optimal aim point.")]
+    [SerializeField()]  private string[] _smartAimIgnoreTags = new string[] { "Untagged" };
+
     [Tooltip("A list of tags the player can aim at. The player will aim at the first object under the mouse which has a tag included in this list.")]
-    public string[] _aimTags;
+    [SerializeField()]  private string[] _aimTags = new string[] { "Untagged", "Enemy" };
+    private RaycastHit[] _nonAllocHits = new RaycastHit[16];    // RaycastHit array declared here for use with RaycastNonAlloc method
+    private RaycastHit _nonAllocHit;
 
     private Vector3 _aimMousePoint;
     private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
@@ -118,6 +127,20 @@ public class PlayerAim : MonoBehaviour
         if (!_mousePointCollider)
             return _aimMousePoint;
 
+        if (_smartAimIgnoreTags.Contains(_mousePointCollider.transform.tag))
+        {
+            if (!_gunOrigin)
+                return _aimMousePoint;
+
+            // Smart aim functionality should be ignored. Instead, find the nearest hit on the ray to _aimMousePoint
+            _nonAllocHit = GetClosestPointOnRay(_gunOrigin.position, _aimMousePoint);
+
+            if (_nonAllocHit.transform)
+                return _nonAllocHit.point;
+
+            return _aimMousePoint;
+        }
+
         if (_gunOrigin)
         {
             // Get ray from character's gun origin to mouse aim point & get hits along ray
@@ -148,32 +171,8 @@ public class PlayerAim : MonoBehaviour
 
                 /* NOTE: If the code reaches this point, there is something obstructing the character's view
                  * of the point under the mouse. The script will attempt to find a new point */
-
-                // Get the bounds of the transform under the mouse
-                Collider parentColliderUnderMouse = underMouseTransform.GetComponent<Collider>();
-                if (!parentColliderUnderMouse)
-                    parentColliderUnderMouse = _mousePointCollider;
-
-                Bounds bounds = parentColliderUnderMouse.GetGroupedBounds();
-
-                // Find the distance from opposite corners
-                float radius = Vector3.Distance(bounds.min, bounds.max);
-
-                // Get ray from gun origin to parent transform under mouse point
-                Ray gunToTransformRay = new Ray(_gunOrigin.position, underMouseTransform.position - _gunOrigin.position);
-                RaycastHit[] hits2 = Physics.SphereCastAll(gunToTransformRay, radius);
-
-                // Filter hits2 array to get only children of the transform under the mouse
-                hits2 = Utils.GetChildrenOf(underMouseTransform, hits2);
                 
-                if (hits2.Length > 0)
-                {
-
-                }
-                
-
-                // TODO: Finish this
-                return _aimMousePoint;
+                return SmartAimFindPoint(underMouseTransform);
             }
             else
             {
@@ -190,20 +189,159 @@ public class PlayerAim : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Used internally to find the closest valid hit on a ray, using the _nonAllocHits array.
+    /// </summary>
+    private RaycastHit GetClosestPointOnRay(Vector3 origin, Vector3 destination)
+    {
+        // Raycast to get hits
+        Vector3 direction = destination - origin;
+        int hitCount = Physics.RaycastNonAlloc(origin, direction, _nonAllocHits, Vector3.Distance(origin, destination) + 0.1f);
+
+        // Loop through all the hits added by the above raycast & sort them by distance from origin
+        for (int i = 0; i < hitCount - 1; i++)
+        {
+            if (i == _nonAllocHits.Length)
+                break;
+
+            // Get this and next hit
+            RaycastHit thisHit = _nonAllocHits[i];
+            RaycastHit nextHit = _nonAllocHits[i + 1];
+
+            // Check if the two hits are not ordered by ascending distance
+            if (Vector3.Distance(thisHit.point, origin) > Vector3.Distance(nextHit.point, origin))
+            {
+                // Swap the two hits
+                _nonAllocHits.SetValue(nextHit, i);
+                _nonAllocHits.SetValue(thisHit, i + 1);
+
+                // Move the iterator back
+                i -= 2;
+                if (i < 0)
+                    i = -1;
+            }
+        }
+
+        if (hitCount > 0)
+            return Utils.GetFirstInstanceMatchingTag(_nonAllocHits, _aimTags);
+
+        return new RaycastHit();
+    }
+
+    /// <summary>
+    /// Used internally to check if a raycast's first valid hit is the target transform.
+    /// </summary>
+    private bool CheckRayFirstHitIsTarget(out Vector3 resultPoint, Vector3 origin, Vector3 destination, Transform target)
+    {
+        Vector3 direction = destination - origin;
+        _nonAllocHit = GetClosestPointOnRay(origin, destination);
+        if (_nonAllocHit.transform)
+        {
+            resultPoint = _nonAllocHit.point;
+            return _nonAllocHit.transform.IsChildOf(target);
+        }
+
+        resultPoint = Vector3.zero;
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to find and return a better aim point by raycasting towards 
+    /// offset positions on the under-mouse-transform's bounding box.
+    /// </summary>
+    private Vector3 SmartAimFindPoint(Transform target)
+    {
+        // Get the bounds of the transform under the mouse
+        Collider parentColliderUnderMouse = target.GetComponent<Collider>();
+        if (!parentColliderUnderMouse)
+            parentColliderUnderMouse = _mousePointCollider;
+
+        Bounds bounds = parentColliderUnderMouse.GetGroupedBounds();
+        Vector3 centerToMaxCorner = (bounds.max - bounds.center);
+
+        // Get step values
+        float x = centerToMaxCorner.x / (float)_smartAimIterations;
+        float y = centerToMaxCorner.y / (float)_smartAimIterations;
+        float z = centerToMaxCorner.z / (float)_smartAimIterations;
+
+        int i = 1;
+        while (i <= _smartAimIterations)
+        {
+            // Set up vectors for step in each direction
+            Vector3 xStep = new Vector3(x * i, 0, 0);
+            Vector3 yStep = new Vector3(0, y * i, 0);
+            Vector3 zStep = new Vector3(0, 0, z * i);
+
+            // Loop through each axis, applying a translation to the axes with each iteration
+            int[] loopValues = new int[] {0, 1, -1};        // This is the order directions will be tested
+            Vector3 resultPoint;
+
+            int xIter = 0, yIter = 0, zIter = 0;
+            while (xIter <= 2)
+            {
+                Vector3 thisXStep = xStep * loopValues[xIter];
+
+                yIter = 0;
+                while (yIter <= 2)
+                {
+                    Vector3 thisYStep = yStep * loopValues[yIter];
+                    zIter = 0;
+                    while (zIter <= 2)
+                    {
+                        Vector3 thisZStep = zStep * loopValues[zIter];
+
+                        // Test ray at this translation
+                        Vector3 currentOffset = thisXStep + thisYStep + thisZStep;
+
+                        if (CheckRayFirstHitIsTarget(out resultPoint, _gunOrigin.position, (bounds.center + currentOffset), target))
+                        {
+                            Debug.DrawLine(_gunOrigin.position, resultPoint);
+                            return resultPoint;
+                        }
+
+                        zIter++;
+                    }
+
+                    yIter++;
+                }
+
+                xIter++;
+            }
+
+            i++;
+        }
+
+        // If the code reaches this point, no better aim point was found
+        return _aimMousePoint;
+    }
+
     void OnDrawGizmos()
     {
         if (enabled && _aimingAtGeometry)
         {
             Gizmos.color = Color.red;
             if (_gunOrigin)
+            {
+                Gizmos.color = Color.green;
                 Gizmos.DrawLine(_gunOrigin.position, _aimMousePoint);
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(_gunOrigin.position, _aimPoint);
+            }
             else
+            {
+                Gizmos.color = Color.green;
                 Gizmos.DrawLine(transform.position, _aimMousePoint);
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(transform.position, _aimPoint);
+            }
 
             Bounds b = _mousePointCollider.GetGroupedBounds();
             Gizmos.DrawWireCube(b.center, b.size);
 
-            Gizmos.DrawWireSphere(_aimPoint, 0.2f);
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(_aimPoint, 0.21f);
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(_aimMousePoint, 0.19f);
         }
     }
 }

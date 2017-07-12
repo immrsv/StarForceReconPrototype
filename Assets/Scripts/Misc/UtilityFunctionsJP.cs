@@ -25,6 +25,9 @@ namespace JakePerry
         /// </summary>
         public static Transform[] ApplyTagMask(Transform[] collection, string[] tagMask)
         {
+            if (tagMask.Length == 0)
+                return collection;
+
             List<Transform> collectionClone = new List<Transform>(collection);
 
             // Loop through each object in the clone list
@@ -61,6 +64,9 @@ namespace JakePerry
         /// </summary>
         public static RaycastHit[] ApplyTagMask(RaycastHit[] collection, string[] tagMask)
         {
+            if (tagMask.Length == 0)
+                return collection;
+
             List<RaycastHit> collectionClone = new List<RaycastHit>(collection);
 
             // Loop through each object in the clone list
@@ -97,6 +103,9 @@ namespace JakePerry
         /// </summary>
         public static Collider[] ApplyTagMask(Collider[] collection, string[] tagMask)
         {
+            if (tagMask.Length == 0)
+                return collection;
+
             List<Collider> collectionClone = new List<Collider>(collection);
 
             // Loop through each object in the clone list
@@ -202,6 +211,72 @@ namespace JakePerry
             }
 
             return collectionClone.ToArray();
+        }
+
+        /// <summary>
+        /// Iterates through the specified collection and returns the first instance
+        /// with a tag found in tagMask
+        /// </summary>
+        public static Transform GetFirstInstanceMatchingTag(Transform[] collection, string[] tagMask)
+        {
+            if (tagMask.Length == 0)
+                return null;
+
+            foreach (Transform t in collection)
+            {
+                foreach (string s in tagMask)
+                {
+                    if (t.tag == s)
+                        return t;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Iterates through the specified collection and returns the first instance
+        /// with a tag found in tagMask
+        /// </summary>
+        public static RaycastHit GetFirstInstanceMatchingTag(RaycastHit[] collection, string[] tagMask)
+        {
+            if (tagMask.Length == 0)
+                return new RaycastHit();
+            
+            foreach (RaycastHit t in collection)
+            {
+                foreach (string s in tagMask)
+                {
+                    if (t.transform)
+                    {
+                        if (t.transform.tag == s)
+                            return t;
+                    }
+                }
+            }
+
+            return new RaycastHit();
+        }
+
+        /// <summary>
+        /// Iterates through the specified collection and returns the first instance
+        /// with a tag found in tagMask
+        /// </summary>
+        public static Collider GetFirstInstanceMatchingTag(Collider[] collection, string[] tagMask)
+        {
+            if (tagMask.Length == 0)
+                return null;
+
+            foreach (Collider t in collection)
+            {
+                foreach (string s in tagMask)
+                {
+                    if (t.transform.tag == s)
+                        return t;
+                }
+            }
+
+            return null;
         }
     }
 
@@ -338,6 +413,19 @@ namespace JakePerry
             System.Array.Sort(hits, delegate (RaycastHit r1, RaycastHit r2) {
                 return Vector3.Distance(position, r1.point).CompareTo(Vector3.Distance(position, r2.point)) * ((reverseOrder) ? -1 : 1);
             });
+        }
+
+        /// <summary>
+        /// Returns whether or not this array contains the specified object
+        /// </summary>
+        public static bool Contains<T>(this T[] array, T target)
+        {
+            foreach (T o in array)
+            {
+                if (o.Equals(target))
+                    return true;
+            }
+            return false;
         }
     }
 }

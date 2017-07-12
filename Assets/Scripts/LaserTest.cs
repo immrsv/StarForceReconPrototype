@@ -6,7 +6,7 @@ using UnityEngine;
 public class LaserTest : MonoBehaviour
 {
 
-    public Vector3 _origin;
+    public Transform _origin;
     private PlayerAim _aimScript;
     public LineRenderer _line;
     
@@ -18,10 +18,10 @@ public class LaserTest : MonoBehaviour
 	void Update ()
     {
         // TODO: Rotate laser with player
-        if (_aimScript && _line)
+        if (_aimScript && _line && _origin)
         {
-            Vector3 endPoint = _aimScript.GetAimMousePoint;
-            Vector3[] positions = { _origin + _line.transform.position, endPoint};
+            Vector3 endPoint = _aimScript.GetAimPoint;
+            Vector3[] positions = { _origin.position, endPoint};
             _line.SetPositions(positions);
 
 
