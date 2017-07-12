@@ -14,7 +14,7 @@ public class PlayerAim : MonoBehaviour
     private LogOnce _gunOriginWarningMessage = null;
 
     [Header("Smart Aim")]
-    [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Increasing this number will increase the amount of checks done exponentially. Please take performance into consideration.")]
+    [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Each extra iteration can result in 8-26 new raycast checks per frame. Although less accurate, a lower value may slightly improve performance.")]
     [SerializeField()]  private int _smartAimIterations = 3;
     [Tooltip("An array of tags that will be ignored by the smart aim functionality. If the cursor point is over a transform with a tag found in this array, the script will not attempt to find an optimal aim point.")]
     [SerializeField()]  private string[] _smartAimIgnoreTags = new string[] { "Untagged" };
@@ -360,7 +360,7 @@ public class PlayerAim : MonoBehaviour
         return _aimMousePoint;
     }
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         if (enabled && _aimingAtGeometry)
         {

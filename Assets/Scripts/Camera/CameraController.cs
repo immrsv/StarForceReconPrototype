@@ -61,8 +61,7 @@ public class CameraController : MonoBehaviour
     [Header("Start Transform")]
     [Tooltip("If true, the following settings will be applied to the camera's transform at start")]
     [SerializeField()]  private bool _overrideTransformAtStart = false;
-    [SerializeField()]  private Vector3 _startPosition = Vector3.zero;
-    [SerializeField()]  private Vector3 _startRotation = Vector3.zero;
+    [Range(0, 360), SerializeField()]  private float _startRotation = 0;
     [SerializeField()]  private Vector3 _startLookPosition = Vector3.zero;
 
     void Awake()
@@ -85,9 +84,8 @@ public class CameraController : MonoBehaviour
         // Set start transform
         if (_overrideTransformAtStart)
         {
-            _cam.transform.position = _startPosition;
-            _cam.transform.rotation = Quaternion.Euler(_startRotation);
-            _rotation = _startRotation.y;
+            _cam.transform.rotation = Quaternion.Euler(new Vector3(0, _startRotation, 0));
+            _rotation = -_startRotation;
             _currentLookPoint = _startLookPosition;
             _destinationLookPoint = _startLookPosition;
         }
@@ -316,8 +314,7 @@ public class CameraController : MonoBehaviour
         if (_overrideTransformAtStart)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(_startPosition, 0.2f);
-            Gizmos.DrawRay(_startPosition, Quaternion.Euler(_startRotation) * -Vector3.forward);
+            Gizmos.DrawRay(transform.position, Quaternion.Euler(new Vector3(0, _startRotation, 0)) * Vector3.right);
 
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(_startLookPosition, 0.2f);
