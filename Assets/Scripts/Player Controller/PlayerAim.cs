@@ -233,7 +233,6 @@ public class PlayerAim : MonoBehaviour
     /// </summary>
     private bool CheckRayFirstHitIsTarget(out Vector3 resultPoint, Vector3 origin, Vector3 destination, Transform target)
     {
-        Vector3 direction = destination - origin;
         _nonAllocHit = GetClosestPointOnRay(origin, destination);
         if (_nonAllocHit.transform)
         {
@@ -259,11 +258,22 @@ public class PlayerAim : MonoBehaviour
         Bounds bounds = parentColliderUnderMouse.GetGroupedBounds();
         Vector3 centerToMaxCorner = (bounds.max - bounds.center);
 
+        List<Vector3> validPoints = new List<Vector3>();
+
         // Get step values
         float x = centerToMaxCorner.x / (float)_smartAimIterations;
         float y = centerToMaxCorner.y / (float)_smartAimIterations;
         float z = centerToMaxCorner.z / (float)_smartAimIterations;
 
+        /* Find directions to ignore. If the character's aim is close to a world direction, the direction can be ignored,
+         * as setting the test point deeper into the target object's bounds will increase the number of tests neeeded
+         * without producing much more accurate results */
+        Vector3 characterToMousePoint = _aimMousePoint - transform.position;
+        bool ignoreX = ( !Utils.IsBetween(((int)Vector3.Angle(characterToMousePoint, Vector3.right)),   35, 145 ) );
+        bool ignoreY = ( !Utils.IsBetween(((int)Vector3.Angle(characterToMousePoint, Vector3.up)),      35, 145 ) );
+        bool ignoreZ = ( !Utils.IsBetween(((int)Vector3.Angle(characterToMousePoint, Vector3.forward)), 35, 145 ) );
+        
+        bool originChecked = false;
         int i = 1;
         while (i <= _smartAimIterations)
         {
@@ -275,28 +285,43 @@ public class PlayerAim : MonoBehaviour
             // Loop through each axis, applying a translation to the axes with each iteration
             int[] loopValues = new int[] {0, 1, -1};        // This is the order directions will be tested
             Vector3 resultPoint;
-
+            
             int xIter = 0, yIter = 0, zIter = 0;
-            while (xIter <= 2)
+            while ((ignoreX && xIter == 0) || (!ignoreX && xIter <= 2))
             {
                 Vector3 thisXStep = xStep * loopValues[xIter];
 
                 yIter = 0;
-                while (yIter <= 2)
+                while ((ignoreY && yIter == 0) || (!ignoreY && yIter <= 2))
                 {
                     Vector3 thisYStep = yStep * loopValues[yIter];
                     zIter = 0;
-                    while (zIter <= 2)
+                    while ((ignoreZ && zIter == 0) || (!ignoreZ && zIter <= 2))
                     {
+                        // Check for case where origin is being checked more than once
+                        if (xIter == 0 && yIter == 0 && zIter == 0)
+                        {
+                            if (originChecked)
+                            {
+                                zIter++;
+                                continue;
+                            }
+                            else
+                                originChecked = true;
+                        }
+
                         Vector3 thisZStep = zStep * loopValues[zIter];
 
                         // Test ray at this translation
-                        Vector3 currentOffset = thisXStep + thisYStep + thisZStep;
+                        Vector3 currentOffset = Vector3.zero;
+                        if (!ignoreX)   currentOffset += thisXStep;
+                        if (!ignoreY)   currentOffset += thisYStep;
+                        if (!ignoreZ)   currentOffset += thisZStep;
 
                         if (CheckRayFirstHitIsTarget(out resultPoint, _gunOrigin.position, (bounds.center + currentOffset), target))
                         {
-                            Debug.DrawLine(_gunOrigin.position, resultPoint);
-                            return resultPoint;
+                            //Debug.DrawLine(_gunOrigin.position, resultPoint);
+                            validPoints.Add(resultPoint);
                         }
 
                         zIter++;
@@ -309,6 +334,26 @@ public class PlayerAim : MonoBehaviour
             }
 
             i++;
+        }
+
+        // Iterate through all valid points & return the point closest to the mouse point
+        if (validPoints.Count > 0)
+        {
+            Vector3 bestFit = validPoints[0];
+            float dist = float.MaxValue;
+
+            foreach (Vector3 v in validPoints)
+            {
+                float d = Vector3.Distance(v, _aimMousePoint);
+                if (d < dist)
+                {
+                    // This is the new closest hit
+                    dist = d;
+                    bestFit = v;
+                }
+            }
+
+            return bestFit;
         }
 
         // If the code reaches this point, no better aim point was found
