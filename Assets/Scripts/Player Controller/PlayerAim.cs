@@ -14,7 +14,7 @@ public class PlayerAim : MonoBehaviour
     private LogOnce _gunOriginWarningMessage = null;
 
     [Header("Smart Aim")]
-    [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Each extra iteration can result in 8-26 new raycast checks per frame. Although less accurate, a lower value may slightly improve performance.")]
+    [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Each extra iteration can result in up to 26 new raycast checks per frame (worst case scenario). Although less accurate, a lower value may slightly improve performance.")]
     [SerializeField()]  private int _smartAimIterations = 3;
     [Tooltip("An array of tags that will be ignored by the smart aim functionality. If the cursor point is over a transform with a tag found in this array, the script will not attempt to find an optimal aim point.")]
     [SerializeField()]  private string[] _smartAimIgnoreTags = new string[] { "Untagged" };
@@ -257,8 +257,9 @@ public class PlayerAim : MonoBehaviour
 
         Bounds bounds = parentColliderUnderMouse.GetGroupedBounds();
         Vector3 centerToMaxCorner = (bounds.max - bounds.center);
-
-        List<Vector3> validPoints = new List<Vector3>();
+        
+        Vector3 bestPoint = Vector3.zero;
+        float distFromBestPoint = float.MaxValue;
 
         // Get step values
         float x = centerToMaxCorner.x / (float)_smartAimIterations;
@@ -318,10 +319,18 @@ public class PlayerAim : MonoBehaviour
                         if (!ignoreY)   currentOffset += thisYStep;
                         if (!ignoreZ)   currentOffset += thisZStep;
 
-                        if (CheckRayFirstHitIsTarget(out resultPoint, _gunOrigin.position, (bounds.center + currentOffset), target))
+                        // Check if this point could potentially be closer than the current best point
+                        float distance = Vector3.Distance(_aimMousePoint, bounds.center + currentOffset);
+                        if (distance < distFromBestPoint)
                         {
-                            //Debug.DrawLine(_gunOrigin.position, resultPoint);
-                            validPoints.Add(resultPoint);
+                            Debug.DrawRay(bounds.center + currentOffset, Vector3.up * 0.2f);
+                            // Check the ray for a valid hit
+                            if (CheckRayFirstHitIsTarget(out resultPoint, _gunOrigin.position, (bounds.center + currentOffset), target))
+                            {
+                                Debug.DrawRay(bounds.center + currentOffset, Vector3.up);
+                                distFromBestPoint = distance;
+                                bestPoint = resultPoint;
+                            }
                         }
 
                         zIter++;
@@ -336,25 +345,9 @@ public class PlayerAim : MonoBehaviour
             i++;
         }
 
-        // Iterate through all valid points & return the point closest to the mouse point
-        if (validPoints.Count > 0)
-        {
-            Vector3 bestFit = validPoints[0];
-            float dist = float.MaxValue;
-
-            foreach (Vector3 v in validPoints)
-            {
-                float d = Vector3.Distance(v, _aimMousePoint);
-                if (d < dist)
-                {
-                    // This is the new closest hit
-                    dist = d;
-                    bestFit = v;
-                }
-            }
-
-            return bestFit;
-        }
+        // Check if a point was found
+        if (distFromBestPoint != float.MaxValue)
+            return bestPoint;
 
         // If the code reaches this point, no better aim point was found
         return _aimMousePoint;
