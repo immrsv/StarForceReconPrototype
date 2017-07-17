@@ -57,6 +57,11 @@ public class CameraController : MonoBehaviour
     [SerializeField()]  private float _rotationSpeed = 150.0f;
     private float _rotation = 0.0f;
 
+    public Vector3 horizontalForward
+    {
+        get { return new Vector3(Mathf.Cos(Mathf.Deg2Rad * _rotation), 0, Mathf.Sin(Mathf.Deg2Rad * _rotation)); }
+    }
+
     // Start position variables
     [Header("Start Transform")]
     [Tooltip("If true, the following settings will be applied to the camera's transform at start")]
