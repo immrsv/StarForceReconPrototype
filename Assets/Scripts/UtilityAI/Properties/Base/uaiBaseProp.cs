@@ -5,7 +5,7 @@ using UnityEngine;
 /* Base class for utility AI properties. */
 namespace JakePerry
 {
-    [System.Serializable()]
+    [System.Serializable]
     public abstract class uaiBaseProp
     {
         [Tooltip("The name of the property.")]

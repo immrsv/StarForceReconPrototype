@@ -6,28 +6,32 @@ namespace JakePerry
 {
     public class uaiAgent : MonoBehaviour
     {
-        [SerializeField()]  private List<uaiBaseBehaviour> _behaviours;
-        private uaiBaseBehaviour _currentBehaviour = null;
-
-        public List<uaiBaseBehaviour> behaviourList
+        private uaiBehaviour _currentBehaviour = null;
+        private List<uaiBehaviour> _behaviours = new List<uaiBehaviour>();
+        /// <summary>
+        /// Returns an array of all behaviours attached to this agent.
+        /// </summary>
+        public uaiBehaviour[] behaviours
         {
-            get { return _behaviours; }
+            get { return _behaviours.ToArray(); }
+        }
+
+        [SerializeField]    private List<uaiBaseProp> _properties = new List<uaiBaseProp>();
+        /// <summary>
+        /// Returns an array of all properties attached to this agent.
+        /// </summary>
+        public uaiBaseProp[] properties
+        {
+            get { return _properties.ToArray(); }
         }
 
         [Tooltip("When evaluating all behaviours, the current behaviour will be given this much extra priority. \nThe higher this value is, the less likely the agent is to suddenly switch tasks before completing the task.")]
         [Range(0.01f, 0.15f), SerializeField()]  private float _commitmentValue = 0.1f;
-
-
-
-        void Start()
-        {
-
-        }
         
         void Update()
         {
             // Find the top priority behaviour
-            uaiBaseBehaviour topPriority = GetTopPriorityBehaviour();
+            uaiBehaviour topPriority = GetTopPriorityBehaviour();
             if (topPriority != null)
                 _currentBehaviour = topPriority;
 
@@ -37,13 +41,40 @@ namespace JakePerry
             }
         }
 
-        private uaiBaseBehaviour GetTopPriorityBehaviour()
+        /// <summary>
+        /// Add the specified behaviour to the agent.
+        /// </summary>
+        public void AddBehaviour(uaiBehaviour b)
         {
-            uaiBaseBehaviour topPriority = null;
+            if (!_behaviours.Contains(b))
+                _behaviours.Add(b);
+        }
+
+        /// <summary>
+        /// Searches for an attached property with the specified name & returns the
+        /// first instance in the list.
+        /// </summary>
+        public uaiBaseProp FindProperty(string name)
+        {
+            foreach (uaiBaseProp p in _properties)
+            {
+                if (p.name == name)
+                    return p;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds the behaviour that is currently weighted as the top priority.
+        /// </summary>
+        private uaiBehaviour GetTopPriorityBehaviour()
+        {
+            uaiBehaviour topPriority = null;
             float topScore = 0.0f;
 
             // Loop through each behaviour to find highest score
-            foreach (uaiBaseBehaviour b in _behaviours)
+            foreach (uaiBehaviour b in _behaviours)
             {
                 if (!b) continue;
 
