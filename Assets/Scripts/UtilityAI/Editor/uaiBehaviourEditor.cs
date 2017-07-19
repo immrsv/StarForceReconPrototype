@@ -29,6 +29,7 @@ namespace JakePerry
             // Allow each element enough space for two lines, plus some padding
             considerations.elementHeight = singleLineHeightDoubled + 8;
 
+            // Lambda function for laying out each element in the list
             considerations.drawElementCallback =
                 (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
@@ -38,7 +39,7 @@ namespace JakePerry
                     EditorGUI.PropertyField(new Rect(rect.x + 20, rect.y, rect.width - 70.0f, singleLineHeight),
                                             element.FindPropertyRelative("_propertyName"),
                                             GUIContent.none);
-                    EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width, singleLineHeight),
+                    EditorGUI.PropertyField(new Rect(rect.x, rect.y, 20, singleLineHeight),
                                             element.FindPropertyRelative("_enabled"),
                                             GUIContent.none);
                     //EditorGUI.LabelField(new Rect(rect.width - 180.0f, rect.y + singleLineHeightDoubled, 50.0f, singleLineHeight), "Weight");
@@ -48,6 +49,7 @@ namespace JakePerry
                                             GUIContent.none);
                 };
 
+            // Add delegate for adding a new consideration element
             considerations.onAddCallback += AddNewConsideration;
         }
 

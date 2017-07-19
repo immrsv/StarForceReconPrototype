@@ -8,8 +8,7 @@ namespace JakePerry
     [System.Serializable]
     public abstract class uaiBaseProp
     {
-        [Tooltip("The name of the property.")]
-        [DelayedAttribute(), SerializeField()]  protected string _name = "";
+        [SerializeField()]  protected string _name = "";
         public string name
         {
             get { return _name; }

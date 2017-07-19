@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace JakePerry
 {
+    [System.Serializable]
     public class uaiBoolProp : uaiBaseProp
     {
         [SerializeField()]  private bool _value = false;

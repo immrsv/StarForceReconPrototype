@@ -16,7 +16,7 @@ namespace JakePerry
             get { return _behaviours.ToArray(); }
         }
 
-        [SerializeField]    private List<uaiBaseProp> _properties = new List<uaiBaseProp>();
+        [SerializeField, HideInInspector]   private List<uaiBaseProp> _properties = new List<uaiBaseProp>();
         /// <summary>
         /// Returns an array of all properties attached to this agent.
         /// </summary>

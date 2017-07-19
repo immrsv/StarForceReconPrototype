@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace JakePerry
 {
+    [System.Serializable]
     public class uaiIntProp : uaiBaseProp
     {
         [SerializeField()]  private int _value;

@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace JakePerry
 {
+    [System.Serializable]
     public class uaiFloatProp : uaiBaseProp
     {
         [SerializeField()]  private float _value;
