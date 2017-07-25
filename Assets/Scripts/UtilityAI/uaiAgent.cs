@@ -16,18 +16,25 @@ namespace JakePerry
             get { return _behaviours.ToArray(); }
         }
 
-        [SerializeField, HideInInspector]   private List<uaiBaseProp> _properties = new List<uaiBaseProp>();
+        [SerializeField]   private List<uaiProperty> _properties = new List<uaiProperty>();
         /// <summary>
         /// Returns an array of all properties attached to this agent.
         /// </summary>
-        public uaiBaseProp[] properties
+        public List<uaiProperty> properties
         {
-            get { return _properties.ToArray(); }
+            get { return _properties; }
         }
 
         [Tooltip("When evaluating all behaviours, the current behaviour will be given this much extra priority. \nThe higher this value is, the less likely the agent is to suddenly switch tasks before completing the task.")]
         [Range(0.01f, 0.15f), SerializeField()]  private float _commitmentValue = 0.1f;
-        
+
+        void Start()
+        {
+            _properties.Clear();
+            uaiProperty p = new uaiProperty(true, false);
+            _properties.Add(p);
+        }
+
         void Update()
         {
             // Find the top priority behaviour
@@ -50,14 +57,21 @@ namespace JakePerry
                 _behaviours.Add(b);
         }
 
+        public void AddProperty(uaiProperty property)
+        {
+            if (!_properties.Contains(property))
+                _properties.Add(property);
+        }
+
         /// <summary>
         /// Searches for an attached property with the specified name & returns the
         /// first instance in the list.
         /// </summary>
-        public uaiBaseProp FindProperty(string name)
+        public uaiProperty FindProperty(string name)
         {
-            foreach (uaiBaseProp p in _properties)
+            foreach (uaiProperty p in _properties)
             {
+                if (p == null) continue;
                 if (p.name == name)
                     return p;
             }

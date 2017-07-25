@@ -6,7 +6,7 @@ using UnityEditorInternal;
 
 namespace JakePerry
 {
-    [CustomEditor(typeof(uaiAgent)), CanEditMultipleObjects]
+    [CustomEditor(typeof(uaiAgent))]
     public class uaiAgentEditor : Editor
     {
 
@@ -26,14 +26,60 @@ namespace JakePerry
             properties.drawHeaderCallback = (Rect rect) => { EditorGUI.LabelField(rect, "Properties"); };
 
             // Allow each element enough space for three lines, plus some padding
+            // TODO: Get height from propertydrawer somehow
             properties.elementHeight = singleLineHeightDoubled + singleLineHeight + 8;
 
+            properties.drawElementCallback = 
+                (Rect rect, int index, bool isActive, bool isFocused) =>
+                {
+                    // Call the propertyDrawer for the base property class
+                    SerializedProperty element = properties.serializedProperty.GetArrayElementAtIndex(index);
+                    EditorGUI.PropertyField(rect, element);
+                };
+
             // Add delegate for the drop-down 'add element' button
-            properties.onAddDropdownCallback += DropDownAdd;
+            properties.onAddDropdownCallback += AddNewProperty;
+
+            properties.onRemoveCallback = (ReorderableList list) =>
+            {
+                if (EditorUtility.DisplayDialog("Warning!",
+                    "Are you sure you want to delete this property from the agent?", "Yes", "No"))
+                {
+                    ReorderableList.defaultBehaviours.DoRemoveButton(list);
+                }
+            };
         }
 
-        private void DropDownAdd(Rect buttonRect, ReorderableList list)
+        private void AddNewProperty(Rect rect, ReorderableList r)
         {
+            // Get the property list being drawn
+            uaiAgent agent = target as uaiAgent;
+            var propertyList = agent.properties;
+
+            GenericMenu menu = new GenericMenu();
+
+            menu.AddItem(new GUIContent("Bool"), false, 
+                () => 
+                {
+                    propertyList.Add(new uaiProperty(true));
+                }
+                );
+
+            menu.AddItem(new GUIContent("Int"), false,
+                () =>
+                {
+                    propertyList.Add(new uaiProperty(1));
+                }
+                );
+
+            menu.AddItem(new GUIContent("Float"), false,
+                () =>
+                {
+                    propertyList.Add(new uaiProperty(0.0f));
+                }
+                );
+
+            menu.ShowAsContext();
         }
 
         public override void OnInspectorGUI()
@@ -43,8 +89,8 @@ namespace JakePerry
             EditorGUILayout.Space();
 
             // Draw the properties list
-            //if (properties != null)
-            //    properties.DoLayoutList();
+            if (properties != null)
+                properties.DoLayoutList();
 
             serializedObject.ApplyModifiedProperties();
 

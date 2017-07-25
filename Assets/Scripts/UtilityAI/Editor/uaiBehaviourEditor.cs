@@ -6,7 +6,7 @@ using UnityEditorInternal;
 
 namespace JakePerry
 {
-    [CustomEditor(typeof(uaiBehaviour)), CanEditMultipleObjects]
+    [CustomEditor(typeof(uaiBehaviour))]
     public class uaiBehaviourEditor : Editor
     {
 
@@ -33,7 +33,7 @@ namespace JakePerry
             considerations.drawElementCallback =
                 (Rect rect, int index, bool isActive, bool isFocused) =>
                 {
-                    var element = considerations.serializedProperty.GetArrayElementAtIndex(index);
+                    SerializedProperty element = considerations.serializedProperty.GetArrayElementAtIndex(index);
                     rect.y += 2;
 
                     EditorGUI.PropertyField(new Rect(rect.x + 20, rect.y, rect.width - 70.0f, singleLineHeight),
@@ -55,16 +55,16 @@ namespace JakePerry
 
         private void AddNewConsideration(ReorderableList r)
         {
-            SerializedProperty prop = r.serializedProperty;
+            SerializedProperty property = r.serializedProperty;
 
-            if (prop.isArray)
+            if (property.isArray)
             {
-                int arraySize = prop.arraySize;
+                int arraySize = property.arraySize;
 
                 // Insert a new element
-                prop.InsertArrayElementAtIndex(arraySize);
+                property.InsertArrayElementAtIndex(arraySize);
 
-                SerializedProperty thisElement = prop.GetArrayElementAtIndex(arraySize);
+                SerializedProperty thisElement = property.GetArrayElementAtIndex(arraySize);
 
                 thisElement.FindPropertyRelative("_priority").animationCurveValue =
                     new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -93,8 +93,8 @@ namespace JakePerry
                 considerations.DoLayoutList();
 
             // Draw current priority
-            uaiBehaviour test = target as uaiBehaviour;
-            float priority = test.Evaluate();
+            uaiBehaviour script = target as uaiBehaviour;
+            float priority = script.Evaluate();
             ProgressBar(priority, "Current Priority");
 
             serializedObject.ApplyModifiedProperties();

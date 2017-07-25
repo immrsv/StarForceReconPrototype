@@ -12,11 +12,12 @@ namespace JakePerry
         public bool _enabled;
 
         [SerializeField]    private AnimationCurve _priority;
-        private uaiBaseProp _propertyReference;
+        private uaiProperty _propertyReference;
+
         /// <summary>
         /// The property attached to this consideration. 
         /// </summary>
-        public uaiBaseProp property
+        public uaiProperty property
         {
             get { return _propertyReference; }
             set { _propertyReference = value; }
@@ -89,7 +90,7 @@ namespace JakePerry
                     uaiConsideration c = _considerations[i];
 
                     // Find the correct property attached to the agent
-                    uaiBaseProp property = _agent.FindProperty(c._propertyName);
+                    uaiProperty property = _agent.FindProperty(c._propertyName);
 
                     if (property != null)
                     {
@@ -98,8 +99,9 @@ namespace JakePerry
                     else
                     {
                         // No property matching the consideration's name was found
-                        Debug.LogWarning("No attached property with name '" + c._propertyName + "' was found. The consideration will not have any weight.");
-                        c._propertyName = "";
+                        Debug.LogWarning("No attached property with name '" + c._propertyName + "' was found. The consideration will be removed.");
+                        _considerations.RemoveAt(i);
+                        i--;
                     }
                 }
             }

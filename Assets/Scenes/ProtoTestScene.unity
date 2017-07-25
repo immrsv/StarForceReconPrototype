@@ -1156,6 +1156,7 @@ GameObject:
   - component: {fileID: 1731667545}
   - component: {fileID: 1731667544}
   - component: {fileID: 1731667549}
+  - component: {fileID: 1731667551}
   - component: {fileID: 1731667550}
   m_Layer: 0
   m_Name: PlayerTest
@@ -1270,9 +1271,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 1731667543}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df225b540cb6a404f922fe5552048286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _considerations: []
+  _action:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+--- !u!114 &1731667551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1731667543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65465d335b65ff64480b119d2caca984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _properties:
+  - {fileID: 0}
   _commitmentValue: 0.1
 --- !u!1 &1759034898
 GameObject:
