@@ -13,41 +13,59 @@ namespace JakePerry
         // Override height for each property
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return 3.0f;
+            float linesPerProperty = 4.5f;
+            return base.GetPropertyHeight(property, label) + EditorGUIUtility.singleLineHeight * (linesPerProperty - 1);
         }
 
-        private uaiProperty GetDrawnProperty(SerializedProperty property)
+        private uaiProperty GetDrawnProperty(SerializedProperty property, out SerializedProperty newProperty)
         {
             object obj = fieldInfo.GetValue(property.serializedObject.targetObject);
-            if (obj == null) return null;
-            
+            if (obj == null)
+            {
+                newProperty = null;
+                return null;
+            }
+
+            newProperty = property;
             uaiProperty p = obj as uaiProperty;
-            Debug.Log(obj.GetType());
-            Debug.Log(obj.GetType().IsGenericType);
+            Debug.Log("Type: " + obj.GetType() + "\nPath: " + property.propertyPath);
+            Debug.Log("Generic: " + obj.GetType().IsGenericType + "\nArray: " + obj.GetType().IsArray);
             if (obj.GetType().IsArray)
             {
                 int index = System.Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));
-                p = ((uaiProperty[])obj)[index];
+                int arrayNameStopsAt = property.propertyPath.IndexOf('.');  // Find first dot in path
+                if (arrayNameStopsAt > -1)
+                {
+                    string arrayName = property.propertyPath.Substring(0, arrayNameStopsAt);
+                    SerializedProperty array = property.serializedObject.FindProperty(arrayName);
+                    if (array.isArray)
+                    {
+                        SerializedProperty element = array.GetArrayElementAtIndex(index);
+                        newProperty = element;
+                        p = element.objectReferenceValue as uaiProperty;
+                    }
+                }
             }
             else if (obj.GetType().IsGenericType)
             {
-            
+                int index = System.Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));
+                int arrayNameStopsAt = property.propertyPath.IndexOf('.');  // Find first dot in path
+                if (arrayNameStopsAt > -1)
+                {
+                    string arrayName = property.propertyPath.Substring(0, arrayNameStopsAt);
+                    SerializedProperty array = property.serializedObject.FindProperty(arrayName);
+                    if (array.isArray)
+                    {
+                        SerializedProperty element = array.GetArrayElementAtIndex(index);
+                        newProperty = element;
+                        p = element.objectReferenceValue as uaiProperty;
+                        if (ReferenceEquals(p, null))
+                            p = ((List<uaiProperty>)obj)[index];
+                    }
+                }
             }
             
             return p;
-
-            //Object targetObject = property.serializedObject.targetObject;
-            //System.Type targetObjectClassType = targetObject.GetType();
-            //
-            //FieldInfo field = targetObjectClassType.GetField(property.propertyPath);
-            //Debug.Log(property.propertyPath);
-            //if (field != null)
-            //{
-            //    Debug.Log("yes");
-            //    object value = field.GetValue(targetObject);
-            //    return value as uaiProperty;
-            //}
-            //return null;
         }
 
         private void DrawBoolLayout(Rect rect, SerializedProperty property, GUIContent label)
@@ -74,7 +92,7 @@ namespace JakePerry
             // Name field
             EditorGUI.LabelField(new Rect(rect.x, lineOneY, 100, singleLineHeight), "Name:");
             EditorGUI.PropertyField(new Rect(rect.x + 50, lineOneY, rect.width - 78.0f, singleLineHeight),
-                                    property.FindPropertyRelative("name"),
+                                    property.FindPropertyRelative("_name"),
                                     GUIContent.none);
 
             // Randomize variables
@@ -306,6 +324,20 @@ namespace JakePerry
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
+            //uaiProperty obj = GetDrawnProperty(property);
+            //if (obj != null)
+            //{
+            //    if (obj.isBool)
+            //        DrawBoolLayout(rect, property, label);
+            //
+            //}
+
+
+
+
+            //EditorGUI.LabelField(rect, "test");
+            //SerializedProperty test = property.FindPropertyRelative("_startRandom");
+            //Debug.Log(test.boolValue);
             //var test = fieldInfo.GetValue(property.serializedObject.targetObject);
             //Debug.Log(test);
             //FieldInfo myField = typeof(uaiProperty).GetField("_propertyType", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -313,7 +345,21 @@ namespace JakePerry
 
             //object test = fieldInfo.GetValue(property.serializedObject.targetObject);
             //object parentObject = fieldInfo.GetValue(property.serializedObject.targetObject);
-            //object test = GetDrawnProperty(property);
+            SerializedProperty newProperty = null;
+            object drawnObject = GetDrawnProperty(property, out newProperty);
+            if (drawnObject != null)
+            {
+                uaiProperty p = drawnObject as uaiProperty;
+
+                if (!ReferenceEquals(p, null))
+                {
+                    EditorGUI.LabelField(rect, drawnObject.ToString());
+                    if (p.isBool)
+                        DrawBoolLayout(rect, newProperty, label);
+                }
+            }
+            else
+                Debug.Log("drawnObject is null?");
             //Debug.Log(parentObject);
 
             

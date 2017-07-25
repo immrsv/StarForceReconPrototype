@@ -34,6 +34,8 @@ namespace JakePerry
                 {
                     // Call the propertyDrawer for the base property class
                     SerializedProperty element = properties.serializedProperty.GetArrayElementAtIndex(index);
+                    //Debug.Log("array element type: " + properties.serializedProperty.arrayElementType);
+                    //Debug.Log("Drawing property for: " + element);
                     EditorGUI.PropertyField(rect, element);
                 };
 

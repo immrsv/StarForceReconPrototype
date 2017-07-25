@@ -1156,8 +1156,8 @@ GameObject:
   - component: {fileID: 1731667545}
   - component: {fileID: 1731667544}
   - component: {fileID: 1731667549}
-  - component: {fileID: 1731667551}
   - component: {fileID: 1731667550}
+  - component: {fileID: 1731667551}
   m_Layer: 0
   m_Name: PlayerTest
   m_TagString: Player
@@ -1291,8 +1291,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65465d335b65ff64480b119d2caca984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _properties:
-  - {fileID: 0}
+  _properties: []
+  _test: []
+  _test2: {fileID: 0}
   _commitmentValue: 0.1
 --- !u!1 &1759034898
 GameObject:

@@ -16,7 +16,9 @@ namespace JakePerry
             get { return _behaviours.ToArray(); }
         }
 
-        [SerializeField]   private List<uaiProperty> _properties = new List<uaiProperty>();
+        [SerializeField]    private List<uaiProperty> _properties = new List<uaiProperty>();
+        [SerializeField]    private uaiProperty[] _test  = new uaiProperty[0];
+        [SerializeField]    private uaiProperty _test2 = new uaiProperty(1);
         /// <summary>
         /// Returns an array of all properties attached to this agent.
         /// </summary>
@@ -30,9 +32,13 @@ namespace JakePerry
 
         void Start()
         {
-            _properties.Clear();
-            uaiProperty p = new uaiProperty(true, false);
-            _properties.Add(p);
+            // TESTING CODE. DELETE LATER
+            //_properties.Clear();
+            //uaiProperty p = new uaiProperty(true, false);
+            //_properties.Add(p);
+
+            Debug.Log("Starting agent");
+            _test[0] = new uaiProperty(1.0f);
         }
 
         void Update()

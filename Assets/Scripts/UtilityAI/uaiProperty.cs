@@ -41,11 +41,17 @@ namespace JakePerry
         [SerializeField]    private int _iminStartValue = 0;
         [SerializeField]    private int _imaxStartValue = 100;
 
-        private string _name = "";
+        [SerializeField]    private string _name = "";
         public new string name
         {
             get { return _name; }
         }
+
+        /// <summary>
+        /// Default constructor. Creates a new boolean property.
+        /// </summary>
+        public uaiProperty()
+            : this(true) { }
 
         /// <summary>
         /// Constructs a new float property.
