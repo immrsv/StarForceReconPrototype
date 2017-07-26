@@ -42,7 +42,6 @@ namespace JakePerry
                     EditorGUI.PropertyField(new Rect(rect.x, rect.y, 20, singleLineHeight),
                                             element.FindPropertyRelative("_enabled"),
                                             GUIContent.none);
-                    //EditorGUI.LabelField(new Rect(rect.width - 180.0f, rect.y + singleLineHeightDoubled, 50.0f, singleLineHeight), "Weight");
 
                     EditorGUI.PropertyField(new Rect(rect.width, rect.y, singleLineHeightDoubled, singleLineHeightDoubled),
                                             element.FindPropertyRelative("_priority"),

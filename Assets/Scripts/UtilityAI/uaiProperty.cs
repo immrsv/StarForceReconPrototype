@@ -1,57 +1,57 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-/* Base class for utility AI properties.
- * NOTE: Due to Unity's inability to serialize abstract classes,
- * this class is not abstract as it should be. Functions which must 
- * be overwritten by inheriting classes are:
- * normalizedValue property get.
- * Start function.
- * SetValue function.
- */
 namespace JakePerry
 {
     [System.Serializable]
-    public class uaiProperty : UnityEngine.Object
+    public struct uaiProperty
     {
+        #region Member Variables
+
         public enum UAIPROPTYPE { BOOL, INT, FLOAT };
 
         // Store property type
-        [SerializeField, HideInInspector]   private UAIPROPTYPE _propertyType = UAIPROPTYPE.BOOL;
+        [SerializeField, HideInInspector]   private UAIPROPTYPE _propertyType;
         public bool isBool  { get { return _propertyType == UAIPROPTYPE.BOOL;   } }
         public bool isInt   { get { return _propertyType == UAIPROPTYPE.INT;    } }
         public bool isFloat { get { return _propertyType == UAIPROPTYPE.FLOAT;  } }
 
         // Property-type specific values
-        [SerializeField, HideInInspector]   private bool _boolValue = false;
-        [SerializeField, HideInInspector]   private float _floatValue = 0.0f;
-        [SerializeField, HideInInspector]   private int _intValue = 0;
+        [SerializeField, HideInInspector]   private bool _boolValue;
+        [SerializeField, HideInInspector]   private float _floatValue;
+        [SerializeField, HideInInspector]   private int _intValue;
+
+        public bool boolValue   { get { return _boolValue; } }
+        public float floatValue { get { return _floatValue; } }
+        public int intValue     { get { return _intValue; } }
 
         // Allowed value clamps
-        [SerializeField]    private float _fminValue = float.MinValue;
-        [SerializeField]    private float _fmaxValue = float.MaxValue;
-        [SerializeField]    private int _iminValue = int.MinValue;
-        [SerializeField]    private int _imaxValue = int.MaxValue;
-        
-        // Random starting values
-        [SerializeField]    private bool _startRandom = false;
-        [SerializeField]    private float _fminStartValue = 0.0f;
-        [SerializeField]    private float _fmaxStartValue = 100.0f;
-        [SerializeField]    private int _iminStartValue = 0;
-        [SerializeField]    private int _imaxStartValue = 100;
+        [SerializeField, HideInInspector]   private float _fminValue;
+        [SerializeField, HideInInspector]   private float _fmaxValue;
+        [SerializeField, HideInInspector]   private int _iminValue;
+        [SerializeField, HideInInspector]   private int _imaxValue;
 
-        [SerializeField]    private string _name = "";
-        public new string name
+        // Random starting values
+        [SerializeField, HideInInspector]   private bool _startRandom;
+        [SerializeField, HideInInspector]   private float _fminStartValue;
+        [SerializeField, HideInInspector]   private float _fmaxStartValue;
+        [SerializeField, HideInInspector]   private int _iminStartValue;
+        [SerializeField, HideInInspector]   private int _imaxStartValue;
+
+        public bool startRandom
+        {
+            get { return _startRandom; }
+            set { _startRandom = value; }
+        }
+
+        [SerializeField]    private string _name;
+        public string name
         {
             get { return _name; }
         }
 
-        /// <summary>
-        /// Default constructor. Creates a new boolean property.
-        /// </summary>
-        public uaiProperty()
-            : this(true) { }
+        #endregion
+
+        #region Member Functions
 
         /// <summary>
         /// Constructs a new float property.
@@ -62,11 +62,11 @@ namespace JakePerry
         /// <param name="startRandom">Should this property's start value be randomized?</param>
         /// <param name="minRandom">Minimum starting value. This is clamped to minValue.</param>
         /// <param name="maxRandom">Maximum starting value. This is clamped to maxValue</param>
-        public uaiProperty(float value, float minValue = float.MinValue, float maxValue = float.MaxValue, 
+        public uaiProperty(float value, float minValue = -200.0f, float maxValue = 200.0f,
             bool startRandom = false, float minRandom = 0.0f, float maxRandom = 100.0f)
         {
-            Debug.Log("Float constructor");
             _propertyType = UAIPROPTYPE.FLOAT;
+            _name = "Float property";
 
             _fminValue = minValue;
             _fmaxValue = maxValue;
@@ -75,6 +75,14 @@ namespace JakePerry
             _startRandom = startRandom;
             _fminStartValue = minRandom;
             _fmaxStartValue = maxRandom;
+
+            // Initialize unused properties
+            _boolValue = false;
+            _intValue = 0;
+            _iminValue = -200;
+            _imaxValue = 200;
+            _iminStartValue = 0;
+            _imaxStartValue = 100;
         }
 
         /// <summary>
@@ -84,9 +92,24 @@ namespace JakePerry
         /// <param name="startRandom">Should this property's start value be randomized?</param>
         public uaiProperty(bool value, bool startRandom = false)
         {
-            Debug.Log("Bool constructor");
             _propertyType = UAIPROPTYPE.BOOL;
+            _name = "Boolean property";
+
             _startRandom = startRandom;
+
+            // Initialize unused properties
+            _boolValue = false;
+            _intValue = 0;
+            _iminValue = -200;
+            _imaxValue = 200;
+            _iminStartValue = 0;
+            _imaxStartValue = 0;
+
+            _floatValue = 0.0f;
+            _fminValue = -200.0f;
+            _fmaxValue = 200.0f;
+            _fminStartValue = 0.0f;
+            _fmaxStartValue = 100.0f;
         }
 
         /// <summary>
@@ -98,11 +121,11 @@ namespace JakePerry
         /// <param name="startRandom">Should this property's start value be randomized?</param>
         /// <param name="minRandom">Minimum starting value. This is clamped to minValue.</param>
         /// <param name="maxRandom">Maximum starting value. This is clamped to maxValue</param>
-        public uaiProperty(int value, int minValue = int.MinValue, int maxValue = int.MaxValue,
+        public uaiProperty(int value, int minValue = -200, int maxValue = 200,
             bool startRandom = false, int minRandom = 0, int maxRandom = 100)
         {
-            Debug.Log("Int constructor");
             _propertyType = UAIPROPTYPE.INT;
+            _name = "Integer property";
 
             _iminValue = minValue;
             _imaxValue = maxValue;
@@ -111,6 +134,15 @@ namespace JakePerry
             _startRandom = startRandom;
             _iminStartValue = minRandom;
             _imaxStartValue = maxRandom;
+
+            // Initialize unused properties
+            _floatValue = 0.0f;
+            _fminValue = -200.0f;
+            _fmaxValue = 200.0f;
+            _fminStartValue = 0.0f;
+            _fmaxStartValue = 100.0f;
+
+            _boolValue = false;
         }
 
         /// <summary>
@@ -203,7 +235,7 @@ namespace JakePerry
                     case UAIPROPTYPE.FLOAT:
                         return fGetNormalizedValue(_floatValue);
                     case UAIPROPTYPE.INT:
-                            return iGetNormalizedValue(_intValue);
+                        return iGetNormalizedValue(_intValue);
 
                     default:
                         return 0.0f;
@@ -244,22 +276,20 @@ namespace JakePerry
 
                 case UAIPROPTYPE.FLOAT:
                     {
-                        if (_startRandom)
-                            _floatValue = Mathf.Clamp(Random.Range(_fminStartValue, _fmaxStartValue), _fminValue, _fmaxValue);
-
                         fVerifyBoundingOrder();
-                        _floatValue = Mathf.Clamp(_floatValue, _fminValue, _fmaxValue);
+
+                        if (_startRandom)
+                            SetValue(Random.Range(_fminStartValue, _fmaxStartValue));
 
                         break;
                     }
 
                 case UAIPROPTYPE.INT:
                     {
-                        if (_startRandom)
-                            _intValue = Mathf.Clamp(Random.Range(_iminStartValue, _imaxStartValue), _iminValue, _imaxValue);
-
                         iVerifyBoundingOrder();
-                        _intValue = Mathf.Clamp(_intValue, _iminValue, _imaxValue);
+
+                        if (_startRandom)
+                            SetValue(Random.Range(_iminStartValue, _imaxStartValue));
 
                         break;
                     }
@@ -300,5 +330,6 @@ namespace JakePerry
             }
         }
 
+        #endregion
     }
 }

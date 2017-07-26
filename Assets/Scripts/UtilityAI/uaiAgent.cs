@@ -16,9 +16,7 @@ namespace JakePerry
             get { return _behaviours.ToArray(); }
         }
 
-        [SerializeField]    private List<uaiProperty> _properties = new List<uaiProperty>();
-        [SerializeField]    private uaiProperty[] _test  = new uaiProperty[0];
-        [SerializeField]    private uaiProperty _test2 = new uaiProperty(1);
+        [SerializeField, HideInInspector]    private List<uaiProperty> _properties = new List<uaiProperty>();
         /// <summary>
         /// Returns an array of all properties attached to this agent.
         /// </summary>
@@ -28,17 +26,15 @@ namespace JakePerry
         }
 
         [Tooltip("When evaluating all behaviours, the current behaviour will be given this much extra priority. \nThe higher this value is, the less likely the agent is to suddenly switch tasks before completing the task.")]
-        [Range(0.01f, 0.15f), SerializeField()]  private float _commitmentValue = 0.1f;
+        [Range(0.01f, 0.15f), SerializeField()] private float _commitmentValue = 0.1f;
 
-        void Start()
+        void Awake()
         {
-            // TESTING CODE. DELETE LATER
-            //_properties.Clear();
-            //uaiProperty p = new uaiProperty(true, false);
-            //_properties.Add(p);
-
-            Debug.Log("Starting agent");
-            _test[0] = new uaiProperty(1.0f);
+            // Initialize each property
+            foreach (uaiProperty p in _properties)
+            {
+                p.Start();
+            }
         }
 
         void Update()
@@ -50,7 +46,7 @@ namespace JakePerry
 
             if (_currentBehaviour != null)
             {
-                // TODO: Execute behaviour
+                _currentBehaviour.ExecuteAction();
             }
         }
 
@@ -63,25 +59,18 @@ namespace JakePerry
                 _behaviours.Add(b);
         }
 
-        public void AddProperty(uaiProperty property)
-        {
-            if (!_properties.Contains(property))
-                _properties.Add(property);
-        }
-
         /// <summary>
         /// Searches for an attached property with the specified name & returns the
         /// first instance in the list.
         /// </summary>
-        public uaiProperty FindProperty(string name)
+        public uaiProperty? FindProperty(string name)
         {
             foreach (uaiProperty p in _properties)
             {
-                if (p == null) continue;
                 if (p.name == name)
-                    return p;
+                    return ((uaiProperty?)p);
             }
-
+        
             return null;
         }
 

@@ -12,12 +12,12 @@ namespace JakePerry
         public bool _enabled;
 
         [SerializeField]    private AnimationCurve _priority;
-        private uaiProperty _propertyReference;
+        private uaiProperty? _propertyReference;
 
         /// <summary>
         /// The property attached to this consideration. 
         /// </summary>
-        public uaiProperty property
+        public uaiProperty? property
         {
             get { return _propertyReference; }
             set { _propertyReference = value; }
@@ -40,8 +40,9 @@ namespace JakePerry
         {
             if (!_enabled) return 0.0f;
             if (_propertyReference == null) return 0.0f;
+            if (!_propertyReference.HasValue) return 0.0f;
 
-            return _priority.Evaluate(_propertyReference.normalizedValue);
+            return _priority.Evaluate(_propertyReference.Value.normalizedValue);
         }
     }
 
@@ -66,7 +67,7 @@ namespace JakePerry
             if (!_agent)
             {
                 Debug.LogError("No Agent script was found on this object or any parent objects. The behaviour script will be deleted.");
-                DestroyImmediate(this);
+                Destroy(this);
             }
 
             // Add this behaviour to the agent
@@ -90,7 +91,7 @@ namespace JakePerry
                     uaiConsideration c = _considerations[i];
 
                     // Find the correct property attached to the agent
-                    uaiProperty property = _agent.FindProperty(c._propertyName);
+                    uaiProperty? property = _agent.FindProperty(c._propertyName);
 
                     if (property != null)
                     {

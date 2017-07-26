@@ -773,7 +773,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1010443243}
-  - component: {fileID: 1010443244}
   m_Layer: 0
   m_Name: Behaviours
   m_TagString: Untagged
@@ -794,23 +793,6 @@ Transform:
   m_Father: {fileID: 1731667548}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1010443244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1010443242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df225b540cb6a404f922fe5552048286, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _considerations: []
-  _action:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
 --- !u!1 &1027785747
 GameObject:
   m_ObjectHideFlags: 0
@@ -1157,7 +1139,6 @@ GameObject:
   - component: {fileID: 1731667544}
   - component: {fileID: 1731667549}
   - component: {fileID: 1731667550}
-  - component: {fileID: 1731667551}
   m_Layer: 0
   m_Name: PlayerTest
   m_TagString: Player
@@ -1271,29 +1252,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 1731667543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df225b540cb6a404f922fe5552048286, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a152d35837693e4fb62572a3d858686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _considerations: []
-  _action:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
---- !u!114 &1731667551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1731667543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65465d335b65ff64480b119d2caca984, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _properties: []
-  _test: []
-  _test2: {fileID: 0}
+  _properties:
+  - _propertyType: 2
+    _boolValue: 0
+    _floatValue: 2.1
+    _intValue: 0
+    _fminValue: -20
+    _fmaxValue: 100
+    _iminValue: -200
+    _imaxValue: 200
+    _startRandom: 1
+    _fminStartValue: 0
+    _fmaxStartValue: 100
+    _iminStartValue: 0
+    _imaxStartValue: 100
+    _name: Float prop
+  - _propertyType: 1
+    _boolValue: 0
+    _floatValue: 0
+    _intValue: 30
+    _fminValue: -200
+    _fmaxValue: 200
+    _iminValue: -10
+    _imaxValue: 45
+    _startRandom: 1
+    _fminStartValue: 0
+    _fmaxStartValue: 100
+    _iminStartValue: 2
+    _imaxStartValue: 100
+    _name: Integer property
   _commitmentValue: 0.1
 --- !u!1 &1759034898
 GameObject:
