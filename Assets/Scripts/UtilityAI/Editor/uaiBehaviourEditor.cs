@@ -81,9 +81,12 @@ namespace JakePerry
             EditorGUILayout.Space();
 
             // Show help message to explain the purpose of considerations & action delegates lists
-            showHelp = EditorGUILayout.Foldout(showHelp, "Help");
-            if (showHelp)
-                EditorGUILayout.HelpBox("Considerations list:\nA list of properties that will be considered by this behaviour. Use the animation curve to specify how each property will be weighted when the value is 0-1\n\nAction Delegates:\nA list of delegate functions which will be triggered by this behaviour when it is run.", MessageType.Info);
+            EditorGUILayout.LabelField(new GUIContent("Hover for help", "Considerations list:\nA list of properties that will be considered by this behaviour.Use the animation curve to specify how each property will be weighted when the value is 0 - 1\n\nAction Delegates:\nA list of delegate functions which will be triggered by this behaviour when it is run."), EditorStyles.boldLabel);
+
+            // Draw name property field
+            SerializedProperty behaviourNameProperty = serializedObject.FindProperty("_behaviourName");
+            if (behaviourNameProperty != null)
+                EditorGUILayout.TextField(new GUIContent("Behaviour Name"), behaviourNameProperty.stringValue);
 
             EditorGUILayout.Space();
 
