@@ -78,7 +78,7 @@ namespace JakePerry
                         // Get a vector2 struct storing these values
                         Vector2 startValues = new Vector2(minRandomStart.floatValue, maxRandomStart.floatValue);
 
-                        EditorGUI.Vector2Field(new Rect(rect.x, lineThreeY, rect.width, singleLineHeight),
+                        startValues = EditorGUI.Vector2Field(new Rect(rect.x, lineThreeY, rect.width, singleLineHeight),
                                                 new GUIContent("Min/Max Start", "The minimum and maximum allowed starting values.\nUse X for minimum & Y for maximum.\nThese will automatically be clamped to the overall min & max values if they exceed the limits."), 
                                                 startValues);
 

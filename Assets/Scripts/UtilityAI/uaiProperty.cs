@@ -3,7 +3,7 @@
 namespace JakePerry
 {
     [System.Serializable]
-    public struct uaiProperty
+    public class uaiProperty
     {
         #region Member Variables
 

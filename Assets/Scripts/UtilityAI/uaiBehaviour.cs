@@ -6,18 +6,18 @@ namespace JakePerry
 {
     /* Struct for holding consideration name and priority curve. */
     [System.Serializable]
-    public struct uaiConsideration
+    public class uaiConsideration
     {
         public string _propertyName;
         public bool _enabled;
 
         [SerializeField]    private AnimationCurve _priority;
-        private uaiProperty? _propertyReference;
+        private uaiProperty _propertyReference;
 
         /// <summary>
         /// The property attached to this consideration. 
         /// </summary>
-        public uaiProperty? property
+        public uaiProperty property
         {
             get { return _propertyReference; }
             set { _propertyReference = value; }
@@ -40,9 +40,8 @@ namespace JakePerry
         {
             if (!_enabled) return 0.0f;
             if (_propertyReference == null) return 0.0f;
-            if (!_propertyReference.HasValue) return 0.0f;
 
-            return _priority.Evaluate(_propertyReference.Value.normalizedValue);
+            return _priority.Evaluate(_propertyReference.normalizedValue);
         }
     }
 
@@ -58,6 +57,12 @@ namespace JakePerry
         [Header("Action Delegates")]
         public UnityEngine.Events.UnityEvent _action;
 
+        [SerializeField]    private string _behaviourName;
+        public string behaviourName
+        {
+            get { return _behaviourName; }
+        }
+
         void Start()
         {
             // Get a reference to the agent component
@@ -72,7 +77,7 @@ namespace JakePerry
 
             // Add this behaviour to the agent
             _agent.AddBehaviour(this);
-
+            
             // Link all considerations to their correct properties
             LinkConsiderations();
         }
@@ -91,12 +96,10 @@ namespace JakePerry
                     uaiConsideration c = _considerations[i];
 
                     // Find the correct property attached to the agent
-                    uaiProperty? property = _agent.FindProperty(c._propertyName);
+                    uaiProperty property = _agent.FindProperty(c._propertyName);
 
                     if (property != null)
-                    {
                         c.property = property;
-                    }
                     else
                     {
                         // No property matching the consideration's name was found
@@ -140,7 +143,7 @@ namespace JakePerry
             }
 
             if (considerations == 0) return 0.0f;
-
+            
             return totalPriority / considerations;
         }
 

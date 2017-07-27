@@ -63,12 +63,12 @@ namespace JakePerry
         /// Searches for an attached property with the specified name & returns the
         /// first instance in the list.
         /// </summary>
-        public uaiProperty? FindProperty(string name)
+        public uaiProperty FindProperty(string name)
         {
             foreach (uaiProperty p in _properties)
             {
                 if (p.name == name)
-                    return ((uaiProperty?)p);
+                    return p;
             }
         
             return null;
