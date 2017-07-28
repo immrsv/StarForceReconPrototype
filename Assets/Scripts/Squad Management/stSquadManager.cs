@@ -7,8 +7,8 @@ using UnityEngine;
 public static class stSquadManager
 {
     // Event info
-    public delegate void EventHandler();
-    public static event EventHandler OnSwitchSquaddie;  // This event is called every time the selected squad member is changed
+    public delegate void SquadMemberSwitchEvent();
+    public static event SquadMemberSwitchEvent OnSwitchSquaddie;  // This event is called every time the selected squad member is changed
 
     // Selection variables
     private static List<SquaddieController> _squadMembers;
@@ -23,7 +23,7 @@ public static class stSquadManager
     // Internal use only. Checks if there are any registered listeners for the OnSwitchSquaddie event, and calls the event if so
     private static void SafeFireOnSwitchSquaddie()
     {
-        EventHandler switchEvent = OnSwitchSquaddie;
+        SquadMemberSwitchEvent switchEvent = OnSwitchSquaddie;
         if (switchEvent != null)    // Check there are registered listeners before firing event
             switchEvent();
     }
