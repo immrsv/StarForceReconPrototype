@@ -11,7 +11,6 @@ namespace JakePerry
     {
 
         private ReorderableList considerations = null;
-        private bool showHelp = false;
 
         private void OnEnable()
         {

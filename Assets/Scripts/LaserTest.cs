@@ -17,7 +17,6 @@ public class LaserTest : MonoBehaviour
 	
 	void Update ()
     {
-        // TODO: Rotate laser with player
         if (_aimScript && _line && _origin)
         {
             Vector3 endPoint = _aimScript.GetAimPoint;
@@ -31,4 +30,9 @@ public class LaserTest : MonoBehaviour
                 _line.enabled = false;
         }
 	}
+
+    void OnDisable()
+    {
+        _line.enabled = false;
+    }
 }
