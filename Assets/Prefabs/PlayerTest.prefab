@@ -168,7 +168,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df225b540cb6a404f922fe5552048286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _considerations: []
+  _considerations:
+  - _propertyName: Health
+    _enabled: 1
+    _weight: 1
+    _priority:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 2
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 0.061800383
+        value: 0.7047591
+        inSlope: -2.2505305
+        outSlope: -2.2505305
+        tangentMode: 0
+      - serializedVersion: 2
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 0
   _action:
     m_PersistentCalls:
       m_Calls: []

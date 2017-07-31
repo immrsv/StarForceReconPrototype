@@ -41,6 +41,28 @@ namespace JakePerry
                     EditorGUI.PropertyField(new Rect(rect.x, rect.y, 20, singleLineHeight),
                                             element.FindPropertyRelative("_enabled"),
                                             GUIContent.none);
+                    
+                    // Width field + label
+                    SerializedProperty weightProperty = element.FindPropertyRelative("_weight");
+                    if (weightProperty != null)
+                    {
+                        // Three quarters the width, accounting for animationCurve space
+                        float width3Q = (rect.width - 50.0f) * 0.75f;
+
+                        // Draw float value field
+                        float fieldStartX = rect.x + width3Q;
+                        EditorGUI.PropertyField(new Rect(fieldStartX, rect.y + singleLineHeight, rect.width - width3Q - 50.0f, singleLineHeight),
+                                                weightProperty,
+                                                GUIContent.none);
+
+                        // Draw label
+                        EditorGUI.LabelField(new Rect(fieldStartX - 44.0f, rect.y + singleLineHeight, 
+                                                44.0f, singleLineHeight),
+                                            new GUIContent("Weight", "How highly is this consideration weighted?"));
+
+                        // Clamp value
+                        weightProperty.floatValue = Mathf.Clamp(weightProperty.floatValue, 0.01f, 10.0f);
+                    }
 
                     EditorGUI.PropertyField(new Rect(rect.width, rect.y, singleLineHeightDoubled, singleLineHeightDoubled),
                                             element.FindPropertyRelative("_priority"),
@@ -70,6 +92,8 @@ namespace JakePerry
                 thisElement.FindPropertyRelative("_propertyName").stringValue = "Enter Property Name";
 
                 thisElement.FindPropertyRelative("_enabled").boolValue = true;
+
+                thisElement.FindPropertyRelative("_weight").floatValue = 1.0f;
             }
         }
 
@@ -80,7 +104,8 @@ namespace JakePerry
             EditorGUILayout.Space();
 
             // Show help message to explain the purpose of considerations & action delegates lists
-            EditorGUILayout.LabelField(new GUIContent("Hover for help", "Considerations list:\nA list of properties that will be considered by this behaviour.Use the animation curve to specify how each property will be weighted when the value is 0 - 1\n\nAction Delegates:\nA list of delegate functions which will be triggered by this behaviour when it is run."), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(new GUIContent("Hover for help", "Considerations list:\nA list of properties that will be considered by this behaviour.Use the animation curve to specify how each property will be weighted when the value is 0 - 1\n\nAction Delegates:\nA list of delegate functions which will be triggered by this behaviour when it is run."), 
+                                        EditorStyles.boldLabel);
 
             // Draw name property field
             SerializedProperty behaviourNameProperty = serializedObject.FindProperty("_behaviourName");

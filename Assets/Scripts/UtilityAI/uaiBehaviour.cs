@@ -8,11 +8,12 @@ namespace JakePerry
     [System.Serializable]
     public class uaiConsideration
     {
-        public string _propertyName;
-        public bool _enabled;
+        public string _propertyName = "";
+        public bool _enabled = true;
+        public float _weight = 1.0f;
 
-        [SerializeField]    private AnimationCurve _priority;
-        private uaiProperty _propertyReference;
+        [SerializeField]    private AnimationCurve _priority = new AnimationCurve();
+        private uaiProperty _propertyReference = null;
 
         /// <summary>
         /// The property attached to this consideration. 
@@ -57,7 +58,7 @@ namespace JakePerry
         [Header("Action Delegates")]
         public UnityEngine.Events.UnityEvent _action;
 
-        [SerializeField]    private string _behaviourName;
+        [SerializeField, HideInInspector]    private string _behaviourName;
         public string behaviourName
         {
             get { return _behaviourName; }
@@ -126,7 +127,7 @@ namespace JakePerry
         {
             float totalPriority = 0.0f;
             int i = 0;
-            int considerations = 0;
+            float considerations = 0;
 
             // Iterate through each consideration to get total priority
             while (i < _considerations.Count)
@@ -135,8 +136,8 @@ namespace JakePerry
 
                 if (c._enabled)
                 {
-                    totalPriority += c.Evaluate();
-                    considerations++;
+                    totalPriority += c.Evaluate() * c._weight;
+                    considerations+= c._weight;
                 }
 
                 i++;
