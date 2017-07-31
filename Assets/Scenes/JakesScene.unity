@@ -493,13 +493,8 @@ Prefab:
     m_Modifications:
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
-      propertyPath: _considerations.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4356495573433414, guid: 11b3a3981d05fe5458bc5ac54ae7c797, type: 2}
       propertyPath: m_LocalPosition.x
@@ -535,58 +530,48 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
-      propertyPath: _considerations.Array.data[0]._propertyName
-      value: Health
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
-      propertyPath: _considerations.Array.data[0]._enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
-      propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[0].value
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[1].time
-      value: 0.21443596
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
-      propertyPath: _considerations.Array.data[0]._priority.m_PreInfinity
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
-        type: 2}
-      propertyPath: _considerations.Array.data[0]._priority.m_PostInfinity
-      value: 2
+      value: 0.1701337
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[1].value
-      value: 0.59757584
+      value: 0.8172591
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[1].inSlope
-      value: -3.059152
+      value: -2.4730763
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[1].outSlope
-      value: -3.059152
+      value: -2.4730763
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[2].time
-      value: 1
+      value: 0.55711246
       objectReference: {fileID: 0}
     - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
         type: 2}
       propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[2].value
-      value: -0.102857135
+      value: 0.14844985
+      objectReference: {fileID: 0}
+    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
+        type: 2}
+      propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[2].inSlope
+      value: -0.664643
+      objectReference: {fileID: 0}
+    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
+        type: 2}
+      propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[2].outSlope
+      value: -0.664643
+      objectReference: {fileID: 0}
+    - target: {fileID: 114458245857291166, guid: 11b3a3981d05fe5458bc5ac54ae7c797,
+        type: 2}
+      propertyPath: _considerations.Array.data[0]._priority.m_Curve.Array.data[3].time
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 11b3a3981d05fe5458bc5ac54ae7c797, type: 2}

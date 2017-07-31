@@ -9,17 +9,24 @@ using JakePerry;
 [DisallowMultipleComponent()]
 public class CameraController : MonoBehaviour
 {
-    // Singleton
+    #region Member Variables
+
+    #region Singleton
+
     private static CameraController _singletonInstance;
     public static CameraController GetInstance
     {
         get { return _singletonInstance; }
     }
 
-    // Camera instance;
+    #endregion
+
+    #region References & Tracking Variables
+
     private Camera _cam = null;
-    
+
     // Data for lerping between look-focus points
+    private Vector3 _previousAimOffset = Vector3.zero;
     private Vector3 _currentLookPoint = Vector3.zero;
     private Vector3 _destinationLookPoint;
     private Vector3 LookPoint
@@ -27,10 +34,13 @@ public class CameraController : MonoBehaviour
         set { _currentLookPoint = value; }
     }
 
-    // Variables to control switching between characters, or to specified points
+    #endregion
+    
+    #region Point-Switching Variables
+
     [Header("Point Switching Variables")]
     [Range(0.2f, 0.6f), Tooltip("Time in seconds it takes for the camera to reach a new target location, when switching controlled characters")]
-    [SerializeField()]  private float _switchCharacterTime = 0.2f;
+    [SerializeField]  private float _switchCharacterTime = 0.2f;
     private float _switchTimeCurrent;
     private bool _isSwitchingToNewPoint = false;
     private float _camSwitchProgress = 0.0f;
@@ -38,23 +48,29 @@ public class CameraController : MonoBehaviour
     private Vector3 _currentSwitchPoint = Vector3.zero;
     private Vector3 _startSwitchPoint = Vector3.zero;
 
-    // Look Point Lerping variables
+    #endregion
+
+    #region Look-Point Lerping Variables
+
     [Header("Look-Point Lerping")]
     [Range(5.0f, 30.0f), Tooltip("The distance at which the camera will start to move at farSpeed.")]
-    [SerializeField()]  private float _farDistance = 10.0f;
+    [SerializeField]    private float _farDistance = 10.0f;
     [Range(40.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
-    [SerializeField()]  private float _farSpeed = 95.0f;
+    [SerializeField]    private float _farSpeed = 95.0f;
     [Tooltip("Determines how quickly the camera will lerp towards it's destination.\n\n(x=0) Represents  distance 0; That is, when the camera is very close to it's destination already.\n\n(x=1) Represents the farDistance variable above.\n\n(y=0) Represents a speed of 0.\n\n(y=1) Represents the farSpeed variable above.\nIdeally this curve should have a positive gradient to make the camera slow down as it reaches it's destination.")]
-    [SerializeField()]  private AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
+    [SerializeField]    private AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
 
-    // General variables
+    #endregion
+
+    #region General
+
     [Header("General")]
-    [Range(7.0f, 30.0f), SerializeField()]    private float _hoverDistance = 20.0f;
-    [Range(10.0f, 85.0f), SerializeField()]   private float _pitch = 45.0f;
+    [Range(7.0f, 30.0f), SerializeField]    private float _hoverDistance = 20.0f;
+    [Range(10.0f, 85.0f), SerializeField]   private float _pitch = 45.0f;
     [Range(0.0f, 0.5f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.5: Aiming further away will cause the camera to focus on a point half way between the character and their aim point.")]
-    [SerializeField()]  private float _aimOffsetDistance = 0.25f;
+    [SerializeField]    private float _aimOffsetDistance = 0.25f;
     [Range(100.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
-    [SerializeField()]  private float _rotationSpeed = 150.0f;
+    [SerializeField]    private float _rotationSpeed = 150.0f;
     private float _rotation = 0.0f;
 
     public Vector3 horizontalForward
@@ -62,12 +78,21 @@ public class CameraController : MonoBehaviour
         get { return new Vector3(Mathf.Cos(Mathf.Deg2Rad * _rotation), 0, Mathf.Sin(Mathf.Deg2Rad * _rotation)); }
     }
 
-    // Start position variables
+    #endregion
+
+    #region Starting variables
+
     [Header("Start Transform")]
     [Tooltip("If true, the following settings will be applied to the camera's transform at start")]
-    [SerializeField()]  private bool _overrideTransformAtStart = false;
-    [Range(0, 360), SerializeField()]  private float _startRotation = 0;
-    [SerializeField()]  private Vector3 _startLookPosition = Vector3.zero;
+    [SerializeField]    private bool _overrideTransformAtStart = false;
+    [Range(0, 360), SerializeField] private float _startRotation = 0;
+    [SerializeField]    private Vector3 _startLookPosition = Vector3.zero;
+
+    #endregion
+
+    #endregion
+
+    #region Member Functions
 
     void Awake()
     {
@@ -264,9 +289,15 @@ public class CameraController : MonoBehaviour
                     {
                         Vector3 aimPoint = aimScript.GetAimMousePoint;
                         Vector3 offsetPoint = aimPoint - currentSquaddie.transform.position;
+                        
+                        // Get offset & track for next frame
+                        Vector3 offset = offsetPoint * Mathf.Clamp01(_aimOffsetDistance);
+                        _previousAimOffset = offset;
 
-                        return offsetPoint * Mathf.Clamp01(_aimOffsetDistance);
+                        return offset;
                     }
+                    else
+                        return _previousAimOffset;
                 }
             }
         }
@@ -325,4 +356,6 @@ public class CameraController : MonoBehaviour
             Gizmos.DrawWireSphere(_startLookPosition, 0.2f);
         }
     }
+
+    #endregion
 }
