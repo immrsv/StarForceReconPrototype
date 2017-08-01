@@ -60,9 +60,15 @@ public class PlayerAim : MonoBehaviour
 	
 	void Update ()
     {
+        GetPointAtPlayerHeight();
         GetHitUnderMouse();
 
         _aimPoint = FindOptimalHitPoint();
+    }
+
+    private void GetPointAtPlayerHeight()
+    {
+        // TODO: Find where the ray from the camera intersects with the horizontal plane at player's height
     }
 
     /// <summary>
