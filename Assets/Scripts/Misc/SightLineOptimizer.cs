@@ -18,6 +18,7 @@ namespace JakePerry
         private static Ray _nonAllocRay = new Ray();
         private static RaycastHit[] _nonAllocHits = new RaycastHit[16];
         private static RaycastHit _nonAllocHit;
+        private readonly static RaycastHit _defaultRaycastHit = default(RaycastHit);
 
         #endregion
 
@@ -60,6 +61,12 @@ namespace JakePerry
 
         #endregion
 
+        #region Debug Variables
+
+        public static bool _drawDebugGizmos = false;
+
+        #endregion
+
         /// <summary>
         /// Calculates an optimal point on the target which is visible from a given position.
         /// </summary>
@@ -86,6 +93,10 @@ namespace JakePerry
         /// N = (2i + 1)^2
         /// </para>
         /// </param>
+        /// /// <param name="validTags">
+        /// An array of tags which are considered as valid hits.
+        /// Any raycasts performed will only consider hits with a contained tag as valid.
+        /// </param>
         /// <param name="maxAllowedAngle">
         /// The maximum allowed angle between ray from sightPosition to targetPoint
         /// and ray from sightPosition to potential-optimal-point.
@@ -93,10 +104,10 @@ namespace JakePerry
         /// </param>
         /// <returns>Returns true if a visible point was found, else returns false.</returns>
         public static bool FindOptimalViewablePoint(out RaycastHit hit, Vector3 sightPosition, Vector3 targetPoint, Collider target, 
-            bool includeChildren, uint iterations, float maxAllowedAngle = 0.0f)
+            bool includeChildren, uint iterations, string[] validTags, float maxAllowedAngle = 0.0f)
         {
             return FindOptimalViewablePoint(out hit, sightPosition, targetPoint, target, includeChildren, 
-                iterations, Physics.AllLayers, maxAllowedAngle);
+                iterations, validTags, Physics.AllLayers, maxAllowedAngle);
         }
 
         /// <summary>
@@ -124,6 +135,10 @@ namespace JakePerry
         /// by this function in the order of:
         /// N = (2i + 1)^2
         /// </para>
+        /// </param>
+        /// /// <param name="validTags">
+        /// An array of tags which are considered as valid hits.
+        /// Any raycasts performed will only consider hits with a contained tag as valid.
         /// </param>
         /// <param name="layerMask">Layermask to be applied to all raycasts performed.</param>
         /// <param name="maxAllowedAngle">
@@ -133,10 +148,10 @@ namespace JakePerry
         /// </param>
         /// <returns>Returns true if a visible point was found, else returns false.</returns>
         public static bool FindOptimalViewablePoint(out RaycastHit hit, Vector3 sightPosition, Vector3 targetPoint, Collider target, 
-            bool includeChildren, uint iterations, LayerMask layerMask, float maxAllowedAngle = 0.0f)
+            bool includeChildren, uint iterations, string[] validTags, LayerMask layerMask, float maxAllowedAngle = 0.0f)
         {
             return FindOptimalViewablePoint(out hit, sightPosition, targetPoint, target, includeChildren, 
-                iterations, layerMask, _emptyStringArray, maxAllowedAngle);
+                iterations, validTags, layerMask, _emptyStringArray, maxAllowedAngle);
         }
 
         /// <summary>
@@ -165,9 +180,13 @@ namespace JakePerry
         /// N = (2i + 1)^2
         /// </para>
         /// </param>
-        /// <param name="ignoreTags">
-        /// An array of tags to be ignored. Any raycast will be ignored if its transform's 
-        /// tag is found in this array.
+        /// <param name="validTags">
+        /// An array of tags which are considered as valid hits.
+        /// Any raycasts performed will only consider hits with a contained tag as valid.
+        /// </param>
+        /// <param name="smartAimIgnoreTags">
+        /// If the target collider's tag is found in this list, smart-aim 
+        /// functionality will not be used.
         /// </param>
         /// <param name="maxAllowedAngle">
         /// The maximum allowed angle between ray from sightPosition to targetPoint
@@ -176,10 +195,10 @@ namespace JakePerry
         /// </param>
         /// <returns>Returns true if a visible point was found, else returns false.</returns>
         public static bool FindOptimalViewablePoint(out RaycastHit hit, Vector3 sightPosition, Vector3 targetPoint, Collider target, 
-            bool includeChildren, uint iterations, string[] ignoreTags, float maxAllowedAngle = 0.0f)
+            bool includeChildren, uint iterations, string[] validTags, string[] smartAimIgnoreTags, float maxAllowedAngle = 0.0f)
         {
             return FindOptimalViewablePoint(out hit, sightPosition, targetPoint, target, includeChildren, 
-                iterations, Physics.AllLayers, ignoreTags, maxAllowedAngle);
+                iterations, validTags, Physics.AllLayers, smartAimIgnoreTags, maxAllowedAngle);
         }
 
         /// <summary>
@@ -207,11 +226,15 @@ namespace JakePerry
         /// by this function in the order of:
         /// N = (2i + 1)^2
         /// </para>
+        /// </param>
+        /// /// <param name="validTags">
+        /// An array of tags which are considered as valid hits.
+        /// Any raycasts performed will only consider hits with a contained tag as valid.
         /// </param>
         /// /// <param name="layerMask">Layermask to be applied to all raycasts performed.</param>
-        /// <param name="ignoreTags">
-        /// An array of tags to be ignored. Any raycast will be ignored if its transform's 
-        /// tag is found in this array.
+        /// <param name="smartAimIgnoreTags">
+        /// If the target collider's tag is found in this list, smart-aim 
+        /// functionality will not be used.
         /// </param>
         /// <param name="maxAllowedAngle">
         /// The maximum allowed angle between ray from sightPosition to targetPoint
@@ -220,19 +243,19 @@ namespace JakePerry
         /// </param>
         /// <returns>Returns true if a visible point was found, else returns false.</returns>
         public static bool FindOptimalViewablePoint(out RaycastHit hit, Vector3 sightPosition, Vector3 targetPoint, Collider target, 
-            bool includeChildren, uint iterations, LayerMask layerMask, string[] ignoreTags, float maxAllowedAngle = 0.0f)
+            bool includeChildren, uint iterations, string[] validTags, LayerMask layerMask, string[] smartAimIgnoreTags, float maxAllowedAngle = 0.0f)
         {
             if (!target)
             {
-                hit = default(RaycastHit);
+                hit = _defaultRaycastHit;
                 return false;
             }
 
-            if (ignoreTags.Contains(target.transform.tag))
+            if (smartAimIgnoreTags.Contains(target.transform.tag))
             {
                 /* The specified collider is ignored by smart-aim. 
                  * Find point on ray nearest to targetPoint. */
-                _nonAllocHit = ClosestPointOnRay(sightPosition, targetPoint, ignoreTags);
+                _nonAllocHit = ClosestPointOnRay(sightPosition, targetPoint, validTags);
                 
                 if (_nonAllocHit.transform)
                 {
@@ -240,23 +263,25 @@ namespace JakePerry
                     return true;
                 }
 
-                hit = default(RaycastHit);
+                hit = _defaultRaycastHit;
                 return false;
             }
 
             /* The specified collider is not ignored by smart-aim.
              * Check if the ray from sightPosition - targetPoint hits a valid
              * visible point. */
-
+            
             _nonAllocRay.origin = sightPosition;
             _nonAllocRay.direction = targetPoint - sightPosition;
+            Debug.DrawRay(sightPosition, Vector3.up * 5);
+            Debug.DrawRay(sightPosition, _nonAllocRay.direction * 10);
 
-            int hits = Physics.RaycastNonAlloc(_nonAllocRay, _nonAllocHits, Vector3.Distance(sightPosition, targetPoint));
+            int hits = Physics.RaycastNonAlloc(_nonAllocRay, _nonAllocHits, Vector3.Distance(sightPosition, targetPoint) + 1.0f);
 
             if (hits > 0)
             {
                 SortNonAllocArrayByDistance(ref _nonAllocHits, hits, sightPosition);
-                if (FirstValidHit(out _nonAllocHit, _nonAllocHits, hits, ignoreTags))
+                if (FirstValidHit(out _nonAllocHit, _nonAllocHits, hits, validTags))
                 {
                     /* Ray to targetPoint has a valid hit. Check if hit collider is target or child of target */
                     Transform hitTransform = _nonAllocHit.transform;
@@ -270,27 +295,152 @@ namespace JakePerry
                 }
 
                 /* SightPosition cannot see the targetPoint. Use smart-aim iteration to find an optimal point */
-                return SmartAimIteration(out hit, sightPosition, target, includeChildren, 
-                    iterations, layerMask, targetPoint, maxAllowedAngle);
+                return SmartAimIteration(out hit, sightPosition, targetPoint, target, 
+                    includeChildren, iterations, validTags, layerMask, maxAllowedAngle);
             }
             else
             {
-                hit = default(RaycastHit);
+                hit = _defaultRaycastHit;
                 return false;
             }
         }
         
-        private static bool SmartAimIteration(out RaycastHit hit, Vector3 sightPosition, Collider target, bool includeChildren,
-            uint iterations, LayerMask layerMask, Vector3 targetPoint, float maxAllowedAngle = 0.0f)
+        private static bool SmartAimIteration(out RaycastHit hit, Vector3 sightPosition, Vector3 targetPoint, Collider target, 
+            bool includeChildren, uint iterations, string[] validTags, LayerMask layerMask, float maxAllowedAngle = 0.0f)
         {
             // Get bounds of target collider (& children colliders if includeChildren)
             Bounds bounds = (includeChildren) ? EncapsulatedChildren(target): target.bounds;
+            Vector3 centerToMaxCorner = (bounds.max - bounds.center);
 
+            RaycastHit bestPoint = default(RaycastHit);
+            float distFromBestPoint = float.MaxValue;
 
-            /* Maybe make a class which converts to 2d projection of AABB.
-             * depth modifier to make sure it's alligned with the far side of the BB.
-             * 
-             *  */
+            // Get step values
+            float x = centerToMaxCorner.x / (float)iterations;
+            float y = centerToMaxCorner.y / (float)iterations;
+            float z = centerToMaxCorner.z / (float)iterations;
+
+            /* Find directions to ignore. If the sight direction is close to a world direction, the direction can be ignored,
+             * as setting the test point deeper into the target object's bounds will increase the number of tests neeeded
+             * without producing much more accurate results */
+            Vector3 sightToTarget = sightPosition - target.transform.position;
+            bool ignoreX = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.right)), 45, 135));
+            bool ignoreY = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.up)), 45, 135));
+            bool ignoreZ = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.forward)), 45, 135));
+
+            _nonAllocRay.origin = sightPosition;
+            bool originChecked = false;
+            int i = 1;
+            while (i <= iterations)
+            {
+                // Set up vectors for step in each direction
+                Vector3 xStep = new Vector3(x * i, 0, 0);
+                Vector3 yStep = new Vector3(0, y * i, 0);
+                Vector3 zStep = new Vector3(0, 0, z * i);
+
+                // Loop through each axis, applying a translation to the axes with each iteration
+                int[] loopValues = new int[] { 0, 1, -1 };        // This is the order directions will be tested
+
+                int xIter = 0, yIter = 0, zIter = 0;
+                while ((ignoreX && xIter == 0) || (!ignoreX && xIter <= 2))
+                {
+                    Vector3 thisXStep = xStep * loopValues[xIter];
+
+                    yIter = 0;
+                    while ((ignoreY && yIter == 0) || (!ignoreY && yIter <= 2))
+                    {
+                        Vector3 thisYStep = yStep * loopValues[yIter];
+                        zIter = 0;
+                        while ((ignoreZ && zIter == 0) || (!ignoreZ && zIter <= 2))
+                        {
+                            // Check for case where origin is being checked more than once
+                            if (xIter == 0 && yIter == 0 && zIter == 0)
+                            {
+                                if (originChecked)
+                                {
+                                    zIter++;
+                                    continue;
+                                }
+                                else
+                                    originChecked = true;
+                            }
+
+                            Vector3 thisZStep = zStep * loopValues[zIter];
+
+                            // Test ray at this translation
+                            Vector3 currentOffset = Vector3.zero;
+                            if (!ignoreX) currentOffset += thisXStep;
+                            if (!ignoreY) currentOffset += thisYStep;
+                            if (!ignoreZ) currentOffset += thisZStep;
+
+                            Vector3 currentPoint = bounds.center + currentOffset;
+
+                            // Check if angle is valid
+                            if (Vector3.Angle((currentPoint - sightPosition), (targetPoint - sightPosition)) <= maxAllowedAngle
+                                || maxAllowedAngle <= 0)
+                            {
+                                // Check if this point could potentially be closer than the current best point
+                                float distance = Vector3.Distance(targetPoint, currentPoint);
+                                if (distance < distFromBestPoint)
+                                {
+                                    if (_drawDebugGizmos)
+                                        Debug.DrawLine(sightPosition + (19 * (currentPoint - sightPosition) / 20), currentPoint);
+
+                                    // Raycast to this potential point
+                                    _nonAllocRay.direction = (currentPoint - sightPosition);
+                                    int hits = Physics.RaycastNonAlloc(_nonAllocRay, _nonAllocHits,
+                                        Vector3.Distance(sightPosition, currentPoint) + 1.0f, layerMask);
+
+                                    SortNonAllocArrayByDistance(ref _nonAllocHits, hits, sightPosition);
+
+                                    // Find the first valid hit
+                                    if (FirstValidHit(out _nonAllocHit, _nonAllocHits, hits, validTags))
+                                    {
+                                        // Check if the valid hit was part of the target collider
+                                        bool isPartOfTarget = (includeChildren) ?
+                                            (_nonAllocHit.transform.IsChildOf(target.transform)) 
+                                            : (_nonAllocHit.transform == target.transform);
+
+                                        if (isPartOfTarget)
+                                        {
+                                            distFromBestPoint = distance;
+                                            bestPoint = _nonAllocHit;
+                                        }
+                                    }
+                                }
+                            }
+
+                            zIter++;
+                        }
+
+                        yIter++;
+                    }
+
+                    xIter++;
+                }
+
+                i++;
+            }
+
+            // Check if a point was found
+            if (distFromBestPoint != float.MaxValue)
+            {
+                hit = bestPoint;
+                return true;
+            }
+
+            /* No optimal aim point was found.
+             * Return first valid hit on ray to targetPoint */
+
+            _nonAllocHit = ClosestPointOnRay(sightPosition, targetPoint, validTags);
+            if (_nonAllocHit.transform)
+            {
+                hit = _nonAllocHit;
+                return true;
+            }
+
+            hit = _defaultRaycastHit;
+            return false;
         }
 
         private static RaycastHit ClosestPointOnRay(Vector3 origin, Vector3 destination)
@@ -298,7 +448,7 @@ namespace JakePerry
             return ClosestPointOnRay(origin, destination, _emptyStringArray);
         }
 
-        private static RaycastHit ClosestPointOnRay(Vector3 origin, Vector3 destination, string[] ignoreTags)
+        private static RaycastHit ClosestPointOnRay(Vector3 origin, Vector3 destination, string[] validTags)
         {
             Vector3 direction = destination - origin;
             _nonAllocRay.origin = origin;
@@ -312,20 +462,20 @@ namespace JakePerry
 
             if (hitCount > 0)
             {
-                if (ignoreTags.Length == 0)
-                    return _nonAllocHits[0];    // No tags to ignore, return closest hit
+                if (validTags.Length == 0)
+                    return _nonAllocHits[0];    // Every tag is valid, return closest hit
 
                 // Iterate through all hits from this raycast & return first instance without an ignored tag
                 for (int i = 0; i < hitCount; i++)
                 {
                     RaycastHit thisHit = _nonAllocHits[i];
-                    if (!ignoreTags.Contains(thisHit.transform.tag))
+                    if (validTags.Contains(thisHit.transform.tag))
                         return thisHit;
                 }
             }
 
             // Nothing was hit by this ray
-            return default(RaycastHit);
+            return _defaultRaycastHit;
         }
 
         /// <summary>
@@ -338,7 +488,7 @@ namespace JakePerry
         {
             if (array.Length < 2) return;
 
-            for (int i = 0; i < hits; i++)
+            for (int i = 0; i < hits - 1; i++)
             {
                 if (i == array.Length) break;
 
@@ -367,23 +517,26 @@ namespace JakePerry
         /// </param>
         /// <param name="array">Reference to the array to search</param>
         /// <param name="hits">The number of elements from the beginning of the array to check</param>
-        /// <param name="ignoreTags">
-        /// An array of tags to be ignored. Any RaycastHit in the provided
-        /// array will be ignored if its tag is found in this array.
-        /// </param>
+        /// <param name="validTags">An array of tags which are considered as valid hits.</param>
         /// <returns>Returns true if a valid hit was found.</returns>
-        private static bool FirstValidHit(out RaycastHit hit, RaycastHit[] array, int hits, string[] ignoreTags)
+        private static bool FirstValidHit(out RaycastHit hit, RaycastHit[] array, int hits, string[] validTags)
         {
             for (int i = 0; i < hits; i++)
             {
-                if (!ignoreTags.Contains(array[i].transform.tag))
+                if (validTags.Length == 0)
+                {
+                    hit = array[i];
+                    return true;
+                }
+
+                if (validTags.Contains(array[i].transform.tag))
                 {
                     hit = array[i];
                     return true;
                 }
             }
 
-            hit = default(RaycastHit);
+            hit = _defaultRaycastHit;
             return false;
         }
 
@@ -401,84 +554,5 @@ namespace JakePerry
 
             return colBounds;
         }
-    }
-
-    /*  */
-    public class BoundingBoxRaycaster
-    {
-        #region Member Variables
-
-        private Bounds? _boundsRef = null;
-        public Bounds? bounds
-        {
-            get { return _boundsRef; }
-            set
-            {
-                if (_boundsRef != value)
-                {
-                    _boundsRef = value;
-                    UpdateCorners();
-                }
-            }
-        }
-
-        private readonly Vector3[] _corners = new Vector3[8];
-
-        private Vector3 _bottomLeft;
-        private Vector3 _bottomRight;
-        private Vector3 _topLeft;
-        private Vector3 _topRight;
-
-        private Vector3 _viewPoint;
-        public Vector3 viewingPoint
-        {
-            get { return _viewPoint; }
-            set
-            {
-                if (_viewPoint != value)
-                {
-                    _viewPoint = value;
-                    EvaluateBounds();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Member Functions
-
-        public BoundingBoxRaycaster(Bounds b, Vector3 viewingPoint)
-        {
-            _boundsRef = b;
-            _viewPoint = viewingPoint;
-        }
-
-        private void UpdateCorners()
-        {
-            if (_boundsRef.HasValue)
-            {
-                Vector3 bCenter = _boundsRef.Value.center;
-                Vector3 bExtents = _boundsRef.Value.extents;
-
-                _corners[0] = bCenter + bExtents;
-                _corners[0] = bCenter - bExtents;
-                _corners[0] = new Vector3(bCenter.x + bExtents.x, bCenter.y + bExtents.y, bCenter.z - bExtents.z);
-                _corners[0] = new Vector3(bCenter.x + bExtents.x, bCenter.y - bExtents.y, bCenter.z + bExtents.z);
-                _corners[0] = new Vector3(bCenter.x - bExtents.x, bCenter.y + bExtents.y, bCenter.z + bExtents.z);
-                _corners[0] = new Vector3(bCenter.x - bExtents.x, bCenter.y - bExtents.y, bCenter.z + bExtents.z);
-                _corners[0] = new Vector3(bCenter.x - bExtents.x, bCenter.y + bExtents.y, bCenter.z - bExtents.z);
-                _corners[0] = new Vector3(bCenter.x + bExtents.x, bCenter.y - bExtents.y, bCenter.z - bExtents.z);
-            }
-        }
-
-        private void EvaluateBounds()
-        {
-            if (_boundsRef.HasValue)
-            {
-                
-            }
-        }
-
-        #endregion
     }
 }
