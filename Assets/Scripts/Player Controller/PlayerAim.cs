@@ -72,7 +72,7 @@ public class PlayerAim : MonoBehaviour
                 if (_mousePointCollider)
                 {
                     // TODO: Decide the best way to determine the parent object
-                    Collider target = _mousePointCollider;
+                    Collider target = _mousePointCollider.TopParentMatchingTag();
                     RaycastHit hit;
                     if (SightLineOptimizer.FindOptimalViewablePoint(out hit, _gunOrigin.position, _aimMousePoint,
                             target, true, (uint)_smartAimIterations, _aimTags, _smartAimIgnoreTags, 0.0f))
@@ -165,7 +165,7 @@ public class PlayerAim : MonoBehaviour
                 Gizmos.DrawLine(transform.position, _aimPoint);
             }
 
-            Bounds b = _mousePointCollider.GetGroupedBounds();
+            Bounds b = _mousePointCollider.TopParentMatchingTag().GetGroupedBounds();
             Gizmos.DrawWireCube(b.center, b.size);
 
             Gizmos.color = Color.magenta;

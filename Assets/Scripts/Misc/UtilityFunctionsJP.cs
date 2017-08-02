@@ -427,5 +427,45 @@ namespace JakePerry
             }
             return false;
         }
+
+        /// <summary>
+        /// Ascends the heirarchy to find the top parent collider, breaking search
+        /// when a parent with a different tag is found.
+        /// </summary>
+        public static Collider TopParentMatchingTag(this Collider col)
+        {
+            string tag = col.transform.tag;
+            Transform t = col.transform;
+
+            Stack<Transform> stack = new Stack<Transform>();
+            stack.Push(t);
+
+            // Ascend heirarchy & track all parent transforms with matching tag
+            while (t.parent != null)
+            {
+                if (t.parent.tag == tag)
+                {
+                    t = t.parent;
+                    stack.Push(t);
+                }
+                else
+                    break;
+            }
+
+            // Find first collider in stack
+            Collider result = null;
+            do
+            {
+                Transform topOfStack = stack.Pop();
+                result = topOfStack.GetComponent<Collider>();
+
+            } while (result == null && stack.Count > 0);
+
+            // Return initial collider if no higher collider was found
+            if (result == null)
+                return col;
+
+            return result;
+        }
     }
 }

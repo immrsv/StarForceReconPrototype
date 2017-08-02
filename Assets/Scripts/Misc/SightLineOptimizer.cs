@@ -61,12 +61,6 @@ namespace JakePerry
 
         #endregion
 
-        #region Debug Variables
-
-        public static bool _drawDebugGizmos = false;
-
-        #endregion
-
         /// <summary>
         /// Calculates an optimal point on the target which is visible from a given position.
         /// </summary>
@@ -383,9 +377,6 @@ namespace JakePerry
                                 float distance = Vector3.Distance(targetPoint, currentPoint);
                                 if (distance < distFromBestPoint)
                                 {
-                                    if (_drawDebugGizmos)
-                                        Debug.DrawLine(sightPosition + (19 * (currentPoint - sightPosition) / 20), currentPoint);
-
                                     // Raycast to this potential point
                                     _nonAllocRay.direction = (currentPoint - sightPosition);
                                     int hits = Physics.RaycastNonAlloc(_nonAllocRay, _nonAllocHits,
