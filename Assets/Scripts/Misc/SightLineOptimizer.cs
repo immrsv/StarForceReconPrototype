@@ -303,7 +303,7 @@ namespace JakePerry
             bool includeChildren, uint iterations, string[] validTags, LayerMask layerMask, float maxAllowedAngle = 0.0f)
         {
             // Get bounds of target collider (& children colliders if includeChildren)
-            Bounds bounds = (includeChildren) ? EncapsulatedChildren(target): target.bounds;
+            Bounds bounds = (includeChildren) ? SightLineUtilityFunctions.EncapsulatedChildren(target): target.bounds;
             Vector3 centerToMaxCorner = (bounds.max - bounds.center);
 
             RaycastHit bestPoint = default(RaycastHit);
@@ -318,9 +318,14 @@ namespace JakePerry
              * as setting the test point deeper into the target object's bounds will increase the number of tests neeeded
              * without producing much more accurate results */
             Vector3 sightToTarget = sightPosition - target.transform.position;
-            bool ignoreX = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.right)), 45, 135));
-            bool ignoreY = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.up)), 45, 135));
-            bool ignoreZ = (!Utils.IsBetween(((int)Vector3.Angle(sightToTarget, Vector3.forward)), 45, 135));
+            bool ignoreX = (!SightLineUtilityFunctions.Between
+                (((int)Vector3.Angle(sightToTarget, Vector3.right)), 45, 135));
+
+            bool ignoreY = (!SightLineUtilityFunctions.Between
+                (((int)Vector3.Angle(sightToTarget, Vector3.up)), 45, 135));
+
+            bool ignoreZ = (!SightLineUtilityFunctions.Between
+                (((int)Vector3.Angle(sightToTarget, Vector3.forward)), 45, 135));
 
             _nonAllocRay.origin = sightPosition;
             bool originChecked = false;
@@ -530,8 +535,15 @@ namespace JakePerry
             hit = _defaultRaycastHit;
             return false;
         }
+    }
 
-        private static Bounds EncapsulatedChildren(Collider col)
+    /* A collection of helper functions used within  */
+    public static class SightLineUtilityFunctions
+    {
+        /// <summary>
+        /// Returns bounding box encapsulating the specified collider & all child colliders.
+        /// </summary>
+        public static Bounds EncapsulatedChildren(Collider col)
         {
             Transform t = col.transform;
             Bounds colBounds = col.bounds;
@@ -544,6 +556,24 @@ namespace JakePerry
                 colBounds.Encapsulate(c.bounds);
 
             return colBounds;
+        }
+
+        /// <summary>
+        /// Returns true if the specified value falls between minimum (inclusive) 
+        /// & maximum (inclusive).
+        /// </summary>
+        public static bool Between(float value, float minimum, float maximum)
+        {
+            return (value >= minimum && value <= maximum);
+        }
+
+        /// <summary>
+        /// Returns true if the specified value falls between minimum (inclusive) 
+        /// & maximum (exclusive).
+        /// </summary>
+        public static bool Between(int value, int minimum, int maximum)
+        {
+            return (value >= minimum && value < maximum);
         }
     }
 }

@@ -91,10 +91,9 @@ public class SpawnZone : MonoBehaviour
         }
 	}
 
-    private void OnEnemyDeath()
+    private void OnEnemyDeath(object sender, float damageValue, float previousHealth, float newHealth)
     {
-        // TODO: Subscribe as a listener to enemy death event.
-        //_registeredEnemies--;
+        _registeredEnemies--;
     }
 
     /// <summary>
@@ -131,7 +130,7 @@ public class SpawnZone : MonoBehaviour
             }
 
             // Reset rest time
-            _restTime = 0;
+            _currentRestDuration = 0;
         }
     }
 
@@ -139,15 +138,13 @@ public class SpawnZone : MonoBehaviour
     /// Registers the specified enemy as belonging to this zone.
     /// Once registered, the enemy will be tracked & accounted for by the system.
     /// </summary>
-    public void RegisterEnemyToZone()
+    public void RegisterEnemyToZone(Health h)
     {
-        // TODO: Take in parameter of health script (probably).
-
-        //if (enemy)
-        //{
-        //  // TODO: Register as a listener for enemy's death
-        //  _registeredEnemies++;
-        //}
+        if (h)
+        {
+            _registeredEnemies++;
+            h.OnDeath += OnEnemyDeath;
+        }
     }
 
     public void AddNode(SpawnNode node)

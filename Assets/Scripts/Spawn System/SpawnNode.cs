@@ -28,6 +28,9 @@ public class SpawnNode : MonoBehaviour
 
     [SerializeField, HideInInspector]    private List<SpawnNodeEnemy> _spawnables;
 
+    private GameObject _enemyEmptyParent = null;
+    [SerializeField]    private Transform _spawnLocation = null;
+
     #endregion
 
     #endregion
@@ -36,6 +39,10 @@ public class SpawnNode : MonoBehaviour
 
     void Awake ()
     {
+        // Create empty object to contain all spawned enemies
+        _enemyEmptyParent = new GameObject("enemies");
+        _enemyEmptyParent.transform.parent = this.transform;
+
         // Auto-find closest zone
         if (_getClosestZone)
         {
@@ -77,8 +84,31 @@ public class SpawnNode : MonoBehaviour
     
     public void SpawnEnemies(int quantity)
     {
-        // TODO: Add delegate to health script to call event on death.
-        // Subscribe connected zone as a listener which de-increments enemy count
+        if (_spawnables.Count > 0)
+        {
+            for (int i = 0; i < quantity; i++)
+            {
+                // TODO: Use chance to pick an enemy
+                GameObject e = _spawnables[0]._enemy;
+                
+                // TODO: Check if null, remove from list & log error if so
+
+                // Instantiate enemy
+                GameObject enemy = Instantiate(e, _enemyEmptyParent.transform);
+                enemy.transform.position = (_spawnLocation) ? 
+                        _spawnLocation.position : transform.position;
+
+                // Subscribe spawn-zone as listener for enemy's death event
+                Health h = enemy.GetComponentInChildren<Health>();
+                if (h)
+                    _zone.RegisterEnemyToZone(h);
+                else
+                {
+                    Debug.LogError("Spawn Node attempted to spawn a specified prefab which does not have an attached Health script. Please ensure all enemies have an attached Health script, as it is required for Spawn Zone tracking.");
+                    Destroy(enemy);
+                }
+            }
+        }
     }
 
     #endregion

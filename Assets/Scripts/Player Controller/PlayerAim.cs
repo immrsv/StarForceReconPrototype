@@ -10,17 +10,17 @@ using JakePerry;
 public class PlayerAim : MonoBehaviour
 {
     [Tooltip("Where the character's gun fires from. This should be an empty gameobject at the end of the gun barrel.")]
-    [SerializeField()]  private Transform _gunOrigin;
+    [SerializeField]    private Transform _gunOrigin;
     private LogOnce _gunOriginWarningMessage = null;
 
     [Header("Smart Aim")]
     [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Each extra iteration can result in up to 26 new raycast checks per frame (worst case scenario). Although less accurate, a lower value may slightly improve performance.")]
-    [SerializeField()]  private int _smartAimIterations = 3;
+    [SerializeField]    private int _smartAimIterations = 3;
     [Tooltip("An array of tags that will be ignored by the smart aim functionality. If the cursor point is over a transform with a tag found in this array, the script will not attempt to find an optimal aim point.")]
-    [SerializeField()]  private string[] _smartAimIgnoreTags = new string[] { "Untagged" };
+    [SerializeField]    private string[] _smartAimIgnoreTags = new string[] { "Untagged" };
 
     [Tooltip("A list of tags the player can aim at. The player will aim at the first object under the mouse which has a tag included in this list.")]
-    [SerializeField()]  private string[] _aimTags = new string[] { "Untagged", "Enemy" };
+    [SerializeField]    private string[] _aimTags = new string[] { "Untagged", "Enemy" };
 
     private Vector3 _aimMousePoint;
     private bool _aimingAtGeometry = false;     // Tracks whether or not the mouse is over aimable geometry
