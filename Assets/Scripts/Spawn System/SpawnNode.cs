@@ -95,8 +95,14 @@ public class SpawnNode : MonoBehaviour
 
                 // Instantiate enemy
                 GameObject enemy = Instantiate(e, _enemyEmptyParent.transform);
-                enemy.transform.position = (_spawnLocation) ? 
-                        _spawnLocation.position : transform.position;
+                if (_spawnLocation)
+                    enemy.transform.position = _spawnLocation.position;
+                else
+                {
+                    Debug.LogError("Spawn Node does not have a spawn-location transform set and is unable to spawn enemies. Please ensure the transform is set.");
+                    Destroy(enemy);
+                    return;
+                }
 
                 // Subscribe spawn-zone as listener for enemy's death event
                 Health h = enemy.GetComponentInChildren<Health>();
