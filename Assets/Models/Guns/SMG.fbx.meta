@@ -1,42 +1,37 @@
 fileFormatVersion: 2
-guid: 6d350b321adce4646993a7d41ec63e21
-timeCreated: 1501721590
+guid: c6182f60d1f064e45830f427390ae05d
+timeCreated: 1501739965
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: LMG_low__2_:Barrel_low
-    100002: LMG_low__2_:base_low
-    100004: LMG_low__2_:grip_low
-    100006: LMG_low__2_:mag_low
-    100008: LMG_low__2_:thing_low
-    100010: LMG_low__2_:trigger_low
-    100012: //RootNode
-    400000: LMG_low__2_:Barrel_low
-    400002: LMG_low__2_:base_low
-    400004: LMG_low__2_:grip_low
-    400006: LMG_low__2_:mag_low
-    400008: LMG_low__2_:thing_low
-    400010: LMG_low__2_:trigger_low
-    400012: //RootNode
-    2300000: LMG_low__2_:Barrel_low
-    2300002: LMG_low__2_:base_low
-    2300004: LMG_low__2_:grip_low
-    2300006: LMG_low__2_:mag_low
-    2300008: LMG_low__2_:thing_low
-    2300010: LMG_low__2_:trigger_low
-    3300000: LMG_low__2_:Barrel_low
-    3300002: LMG_low__2_:base_low
-    3300004: LMG_low__2_:grip_low
-    3300006: LMG_low__2_:mag_low
-    3300008: LMG_low__2_:thing_low
-    3300010: LMG_low__2_:trigger_low
-    4300000: LMG_low__2_:trigger_low
-    4300002: LMG_low__2_:grip_low
-    4300004: LMG_low__2_:thing_low
-    4300006: LMG_low__2_:Barrel_low
-    4300008: LMG_low__2_:mag_low
-    4300010: LMG_low__2_:base_low
+    100000: //RootNode
+    100002: SMG_final_Barrel_low
+    100004: SMG_final_base_low
+    100006: SMG_final_Grip_low
+    100008: SMG_final_Mag_low
+    100010: SMG_final_Thing_low
+    400000: //RootNode
+    400002: SMG_final_Barrel_low
+    400004: SMG_final_base_low
+    400006: SMG_final_Grip_low
+    400008: SMG_final_Mag_low
+    400010: SMG_final_Thing_low
+    2300000: SMG_final_Barrel_low
+    2300002: SMG_final_base_low
+    2300004: SMG_final_Grip_low
+    2300006: SMG_final_Mag_low
+    2300008: SMG_final_Thing_low
+    3300000: SMG_final_Barrel_low
+    3300002: SMG_final_base_low
+    3300004: SMG_final_Grip_low
+    3300006: SMG_final_Mag_low
+    3300008: SMG_final_Thing_low
+    4300000: SMG_final_Grip_low
+    4300002: SMG_final_Barrel_low
+    4300004: SMG_final_base_low
+    4300006: SMG_final_Thing_low
+    4300008: SMG_final_Mag_low
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -62,7 +57,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 11
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

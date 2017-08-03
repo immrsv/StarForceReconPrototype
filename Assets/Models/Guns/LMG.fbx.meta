@@ -1,37 +1,42 @@
 fileFormatVersion: 2
-guid: 0e58fa9114e6de14da587fda70e38bb8
-timeCreated: 1501721590
+guid: c3d5aa612a1f24947b53887ed666aa6c
+timeCreated: 1501739953
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: Barrel_low
-    100002: base_low
-    100004: Grip_low
-    100006: Mag_low
-    100008: //RootNode
-    100010: Thing_low
-    400000: Barrel_low
-    400002: base_low
-    400004: Grip_low
-    400006: Mag_low
-    400008: //RootNode
-    400010: Thing_low
-    2300000: Barrel_low
-    2300002: base_low
-    2300004: Grip_low
-    2300006: Mag_low
-    2300008: Thing_low
-    3300000: Barrel_low
-    3300002: base_low
-    3300004: Grip_low
-    3300006: Mag_low
-    3300008: Thing_low
-    4300000: Mag_low
-    4300002: Thing_low
-    4300004: base_low
-    4300006: Barrel_low
-    4300008: Grip_low
+    100000: //RootNode
+    100002: LMG_Barrel_low
+    100004: LMG_base_low
+    100006: LMG_grip_low
+    100008: LMG_mag_low
+    100010: LMG_thing_low
+    100012: LMG_trigger_low
+    400000: //RootNode
+    400002: LMG_Barrel_low
+    400004: LMG_base_low
+    400006: LMG_grip_low
+    400008: LMG_mag_low
+    400010: LMG_thing_low
+    400012: LMG_trigger_low
+    2300000: LMG_Barrel_low
+    2300002: LMG_base_low
+    2300004: LMG_grip_low
+    2300006: LMG_mag_low
+    2300008: LMG_thing_low
+    2300010: LMG_trigger_low
+    3300000: LMG_Barrel_low
+    3300002: LMG_base_low
+    3300004: LMG_grip_low
+    3300006: LMG_mag_low
+    3300008: LMG_thing_low
+    3300010: LMG_trigger_low
+    4300000: LMG_thing_low
+    4300002: LMG_Barrel_low
+    4300004: LMG_mag_low
+    4300006: LMG_base_low
+    4300008: LMG_grip_low
+    4300010: LMG_trigger_low
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -57,7 +62,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 10
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
