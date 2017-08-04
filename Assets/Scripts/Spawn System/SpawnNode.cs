@@ -117,5 +117,10 @@ public class SpawnNode : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        _zone.RemoveNode(this);
+    }
+
     #endregion
 }
