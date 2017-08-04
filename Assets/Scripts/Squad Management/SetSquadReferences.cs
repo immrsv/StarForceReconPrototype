@@ -12,8 +12,28 @@ public class SetSquadReferences : MonoBehaviour
 	void Awake ()
     {
         // Set each instance in the list to AI mode
+        for (int i = 0; i < _members.Count; i++)
+        {
+            SquaddieController s = _members[i];
+
+            if (s == null)
+            {
+                // Remove the reference from the list
+                _members.Remove(s);
+
+                // De-increment iterator
+                i--;
+            }
+            else
+                s.DeselectSquaddie();
+        }
         foreach (SquaddieController s in _members)
-            s.DeselectSquaddie();
+        {
+            if (s == null)
+                _members.Remove(s);
+            else
+                s.DeselectSquaddie();
+        }
 
         // Set the list
         stSquadManager.SetSquadList(_members);

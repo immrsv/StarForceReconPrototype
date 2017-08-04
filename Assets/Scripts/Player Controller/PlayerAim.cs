@@ -13,6 +13,8 @@ public class PlayerAim : MonoBehaviour
     [SerializeField]    private Transform _gunOrigin;
     private LogOnce _gunOriginWarningMessage = null;
 
+    [SerializeField]    private LayerMask _aimableLayers = new LayerMask();
+
     [Header("Smart Aim")]
     [Range(2, 5), Tooltip("The number of iterations to make in each direction, positively and negatively, when searching for a better aim point.\nNOTE: Each extra iteration can result in up to 26 new raycast checks per frame (worst case scenario). Although less accurate, a lower value may slightly improve performance.")]
     [SerializeField]    private int _smartAimIterations = 3;
@@ -50,6 +52,9 @@ public class PlayerAim : MonoBehaviour
     void Awake()
     {
         _gunOriginWarningMessage = new LogOnce("Warning: No gun origin transform specified on PlayerAim script.", LogOnce.LogType.Warning, gameObject);
+
+        if (_aimableLayers == 0)
+            Debug.LogWarning("Warning: Aim script on " + gameObject.name + " has Aimable Layers mask with no selected layers.");
     }
     
 	void Start ()
@@ -71,11 +76,10 @@ public class PlayerAim : MonoBehaviour
             {
                 if (_mousePointCollider)
                 {
-                    // TODO: Decide the best way to determine the parent object
                     Collider target = _mousePointCollider.TopParentMatchingTag();
                     RaycastHit hit;
                     if (SightLineOptimizer.FindOptimalViewablePoint(out hit, _gunOrigin.position, _aimMousePoint,
-                            target, true, (uint)_smartAimIterations, _aimTags, _smartAimIgnoreTags, 0.0f))
+                            target, true, (uint)_smartAimIterations, _aimTags, _aimableLayers, _smartAimIgnoreTags, 0.0f))
                         _aimPoint = hit.point;
                     else
                         _aimPoint = _aimMousePoint;
@@ -105,7 +109,7 @@ public class PlayerAim : MonoBehaviour
         Ray mouseRay = mainCam.ScreenPointToRay(Input.mousePosition);
 
         // Get an array of all raycasthits for this ray
-        RaycastHit[] rayHits = Physics.RaycastAll(mouseRay);
+        RaycastHit[] rayHits = Physics.RaycastAll(mouseRay, 1000.0f, _aimableLayers.value);
 
         if (rayHits.Length > 0)
         {

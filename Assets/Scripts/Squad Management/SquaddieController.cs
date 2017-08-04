@@ -15,6 +15,9 @@ public class SquaddieController : MonoBehaviour
     [Tooltip("A list of Controller scripts which will be enabled when the character is being controlled by the player")]
     public List<MonoBehaviour> _ControllerScripts;
 
+    [Tooltip("Delay in seconds before re-enabling Controller scripts.")]
+    [Range(0.2f, 1.0f), SerializeField]    private float _selectionDelay = 0.2f;
+
     void Start ()
     {
         // Add an event handler for squad member switching
@@ -47,10 +50,22 @@ public class SquaddieController : MonoBehaviour
     }
 
     /// <summary>
+    /// Internal function called by SelectSquaddie after a delay.
+    /// </summary>
+    private void Select()
+    {
+        SetListEnableState(_AIScripts, false);
+        SetListEnableState(_ControllerScripts, true);
+    }
+
+    /// <summary>
     /// Enables AI & disables Controller scripts so the squad member is played by the AI
     /// </summary>
     public void DeselectSquaddie()
     {
+        // Cancel invoked select method
+        CancelInvoke("Select");
+
         SetListEnableState(_AIScripts, true);
         SetListEnableState(_ControllerScripts, false);
     }
@@ -60,8 +75,7 @@ public class SquaddieController : MonoBehaviour
     /// </summary>
     public void SelectSquaddie()
     {
-        SetListEnableState(_AIScripts, false);
-        SetListEnableState(_ControllerScripts, true);
+        Invoke("Select", _selectionDelay);
     }
 
     void OnDrawGizmos()

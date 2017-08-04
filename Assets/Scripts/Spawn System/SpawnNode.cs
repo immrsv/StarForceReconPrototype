@@ -81,6 +81,16 @@ public class SpawnNode : MonoBehaviour
             Destroy(this);
         }
 	}
+
+    void Start()
+    {
+        /* NOTE: Components will not receive the OnDestroy method call
+         * if they do not have Start, Update, FixedUpdate, etc implemented.
+         * 
+         * The Start function is only implemented here to ensure the OnDestroy
+         * method is called. 
+         */
+    }
     
     public void SpawnEnemies(int quantity)
     {
