@@ -16,7 +16,7 @@ public class SpawnZone : MonoBehaviour
     #region Spawn timing
 
     [Tooltip("The time in seconds to wait between wave spawning, where: \n0 = no minimum wait time; The zone will immediately spawn a wave upon death of an enemy belonging to the zone, and \n5 = a minimum of 5 seconds delay between waves being spawned.")]
-    [Range(0.0f, 5.0f), SerializeField]private float _restTime = 0;
+    [Range(0.0f, 5.0f), SerializeField] private float _restTime = 0;
     private float _currentRestDuration = 0;
 
     [Tooltip("Upon spawning a wave, should the spawn zone attempt to replenish to the maximum enemy quantity? \nIf false, Wave Size will be used to determine how many enemies to spawn.")]

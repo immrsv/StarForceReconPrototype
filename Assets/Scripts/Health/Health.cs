@@ -29,8 +29,8 @@ public class Health : MonoBehaviour
     [Range(1, 1000), SerializeField]private int _startingHealth = 100;
 
     [SerializeField]    private bool _startRandom = false;
-    [Range(1, 100), SerializeField]  private int _startMinimum = 60;
-    [Range(1, 100), SerializeField] private int _startMaximum = 100;
+    [Range(1, 1000), SerializeField]  private int _startMinimum = 60;
+    [Range(1, 1000), SerializeField] private int _startMaximum = 100;
 
     #endregion
 

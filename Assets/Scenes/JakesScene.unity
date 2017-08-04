@@ -677,11 +677,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c953524a917f84593137565d51982f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _restTime: 2.06
+  _restTime: 5
   _spawnToMax: 1
-  _waveSize: 4
-  _enemyPoolSize: 16
-  _maxAliveEnemies: 36
+  _waveSize: 5
+  _enemyPoolSize: 0
+  _maxAliveEnemies: 30
   _minAliveEnemies: 2
 --- !u!4 &898936715
 Transform:
@@ -1458,6 +1458,16 @@ Prefab:
     - target: {fileID: 4402558608059088, guid: bb7cae25e72480546afffaa35eafcd99, type: 2}
       propertyPath: m_RootOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114723205539120316, guid: bb7cae25e72480546afffaa35eafcd99,
+        type: 2}
+      propertyPath: _rechargeWhenLow
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114723205539120316, guid: bb7cae25e72480546afffaa35eafcd99,
+        type: 2}
+      propertyPath: _gainPerSecond
+      value: 6.9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bb7cae25e72480546afffaa35eafcd99, type: 2}
