@@ -67,8 +67,8 @@ public class CameraController : MonoBehaviour
     [Header("General")]
     [Range(7.0f, 30.0f), SerializeField]    private float _hoverDistance = 20.0f;
     [Range(10.0f, 85.0f), SerializeField]   private float _pitch = 45.0f;
-    [Range(0.0f, 0.5f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.5: Aiming further away will cause the camera to focus on a point half way between the character and their aim point.")]
-    [SerializeField]    private float _aimOffsetDistance = 0.25f;
+    [Range(0.0f, 0.25f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.25: Aiming further away will cause the camera to focus on a point 25% of the way between the character and their aim point.")]
+    [SerializeField]    private float _aimOffsetDistance = 0.1f;
     [Range(100.0f, 270.0f), Tooltip("The number of degrees the camera will rotate each second when using the rotate buttons")]
     [SerializeField]    private float _rotationSpeed = 150.0f;
     private float _rotation = 0.0f;
