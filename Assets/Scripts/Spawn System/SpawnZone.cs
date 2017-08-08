@@ -91,7 +91,7 @@ public class SpawnZone : MonoBehaviour
         }
 	}
 
-    private void OnEnemyDeath(object sender, float damageValue, float previousHealth, float newHealth)
+    private void OnEnemyDeath(Health sender, float damageValue)
     {
         _registeredEnemies--;
     }

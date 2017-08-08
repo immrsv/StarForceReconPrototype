@@ -77,7 +77,7 @@ public class SpawnNode : MonoBehaviour
             _zone.AddNode(this);
         else
         {
-            Debug.LogError("SpawnNode script on " + gameObject.name + " is not assigned to a SpawnZone. The script will be destroyed.");
+            Debug.LogError("SpawnNode script on " + gameObject.name + " is not assigned to a SpawnZone. The node will be destroyed.");
             Destroy(this);
         }
 	}
@@ -129,7 +129,8 @@ public class SpawnNode : MonoBehaviour
 
     void OnDestroy()
     {
-        _zone.RemoveNode(this);
+        if (_zone)
+            _zone.RemoveNode(this);
     }
 
     #endregion
