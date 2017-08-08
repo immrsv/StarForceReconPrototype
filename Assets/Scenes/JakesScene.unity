@@ -92,6 +92,22 @@ NavMeshSettings:
     cellSize: 0.16666667
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &7014742 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1806735292631994, guid: f3f54d7d9eac5454fa7bf149eb18c9d4,
+    type: 2}
+  m_PrefabInternal: {fileID: 204483462}
+--- !u!114 &7014751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 7014742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 706c21165ec9a304e9384ec1e8340152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &24453273
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,11 +365,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _hoverDistance: 9
+  _hoverDistance: 10.9
   _pitch: 45
-  _aimOffsetDistance: 0.151
+  _aimOffsetDistance: 0.1
   _rotationSpeed: 150
-  _overrideTransformAtStart: 1
+  _overrideTransformAtStart: 0
   _startRotation: 0
   _startLookPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &182096662
@@ -757,7 +773,7 @@ GameObject:
   m_Component:
   - component: {fileID: 622063716}
   m_Layer: 0
-  m_Name: Players
+  m_Name: Playable Characters
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -870,12 +886,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c953524a917f84593137565d51982f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _restTime: 5
+  _restTime: 0
   _spawnToMax: 1
-  _waveSize: 5
+  _waveSize: 10
   _enemyPoolSize: 0
-  _maxAliveEnemies: 30
-  _minAliveEnemies: 2
+  _maxAliveEnemies: 10
+  _minAliveEnemies: 0
 --- !u!4 &898936715
 Transform:
   m_ObjectHideFlags: 0
@@ -1493,11 +1509,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _zone: {fileID: 0}
-  _getClosestZone: 1
-  _spawnables:
-  - _enemy: {fileID: 1827878588260222, guid: bb7cae25e72480546afffaa35eafcd99, type: 2}
-    _chance: 0
-  _spawnLocation: {fileID: 921717169}
+  _getClosestZone: 0
+  _spawnables: []
+  _spawnLocation: {fileID: 0}
 --- !u!23 &1797280546
 MeshRenderer:
   m_ObjectHideFlags: 0
