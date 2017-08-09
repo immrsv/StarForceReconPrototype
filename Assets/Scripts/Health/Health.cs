@@ -48,6 +48,8 @@ public class Health : MonoBehaviour
     [Tooltip("Percent of Max Health to regain each second while recharging.")]
     [Range(1.0f, 50.0f), SerializeField]    private float _gainPerSecond = 5.0f;
 
+    private float _timeSinceDamage = 0.0f;
+
     #endregion
 
     #region Get Properties
@@ -73,14 +75,41 @@ public class Health : MonoBehaviour
 
     #endregion
 
-    void Start ()
+    void Awake()
     {
-        /* NOTE: Components will not receive the OnDestroy method call
-         * if they do not have Start, Update, FixedUpdate, etc implemented.
-         * 
-         * The Start function is only implemented here to ensure the OnDestroy
-         * method is called. 
-         */
+        // Initialize health
+        if (_startRandom)
+            _currentHealth = Random.Range(_startMinimum, _startMaximum + 1);
+        else
+            _currentHealth = _startingHealth;
+
+        if (_currentHealth > _maxHealth)
+            _currentHealth = _maxHealth;
+    }
+    
+    void Update()
+    {
+        // Handle health recharging
+        _timeSinceDamage += Time.deltaTime;
+        Recharge();
+    }
+
+    private void Recharge()
+    {
+        // Convert threshold percentage to actual value
+        float thresholdHP = _maxHealth * _lowThresholdRecharge / 100;
+
+        if (_timeSinceDamage >= _delayAfterDamage 
+            && _currentHealth < thresholdHP)
+        {
+            float toThreshold = thresholdHP - _currentHealth;
+            float gain = _gainPerSecond * Time.deltaTime;
+
+            if (gain > toThreshold)
+                gain = toThreshold;
+
+            _currentHealth += gain;
+        }
     }
 
     /// <summary>
@@ -111,6 +140,7 @@ public class Health : MonoBehaviour
             if (damage < 0) damage *= -1.0f;
 
             _currentHealth -= damage;
+            _timeSinceDamage = 0.0f;
 
             // Raise events
             RaiseEvent(OnHealthChanged, damage);

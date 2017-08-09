@@ -108,6 +108,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706c21165ec9a304e9384ec1e8340152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _guns:
+  - _gun: {fileID: 0}
+    _holsterPoint: {fileID: 0}
+  - _gun: {fileID: 0}
+    _holsterPoint: {fileID: 0}
 --- !u!1 &24453273
 GameObject:
   m_ObjectHideFlags: 0
@@ -118,6 +123,7 @@ GameObject:
   - component: {fileID: 24453276}
   - component: {fileID: 24453275}
   - component: {fileID: 24453274}
+  - component: {fileID: 24453277}
   m_Layer: 0
   m_Name: GM
   m_TagString: Untagged
@@ -163,6 +169,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &24453277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 24453273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05ae49db2e7affd4cac71d16b35816b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &44600898
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,6 +1043,42 @@ Transform:
   m_Father: {fileID: 426503734}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1009537616 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1827878588260222, guid: bb7cae25e72480546afffaa35eafcd99,
+    type: 2}
+  m_PrefabInternal: {fileID: 1969704080}
+--- !u!114 &1009537621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1009537616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df225b540cb6a404f922fe5552048286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _considerations: []
+  _action:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  _behaviourName: 
+--- !u!114 &1009537622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1009537616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a152d35837693e4fb62572a3d858686, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _properties: []
+  _commitmentValue: 0.1
 --- !u!1 &1027785747
 GameObject:
   m_ObjectHideFlags: 0
@@ -1508,10 +1561,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71ae5b4c1f59cb247985333aa34199c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _zone: {fileID: 0}
+  _zone: {fileID: 898936714}
   _getClosestZone: 0
   _spawnables: []
-  _spawnLocation: {fileID: 0}
+  _spawnLocation: {fileID: 921717169}
 --- !u!23 &1797280546
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1698,16 +1751,6 @@ Prefab:
     - target: {fileID: 4402558608059088, guid: bb7cae25e72480546afffaa35eafcd99, type: 2}
       propertyPath: m_RootOrder
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114723205539120316, guid: bb7cae25e72480546afffaa35eafcd99,
-        type: 2}
-      propertyPath: _rechargeWhenLow
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114723205539120316, guid: bb7cae25e72480546afffaa35eafcd99,
-        type: 2}
-      propertyPath: _gainPerSecond
-      value: 6.9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bb7cae25e72480546afffaa35eafcd99, type: 2}

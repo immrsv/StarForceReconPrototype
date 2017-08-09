@@ -77,7 +77,7 @@ public class SpawnNode : MonoBehaviour
             _zone.AddNode(this);
         else
         {
-            Debug.LogError("SpawnNode script on " + gameObject.name + " is not assigned to a SpawnZone. The node will be destroyed.");
+            Debug.LogError("SpawnNode is not assigned to a SpawnZone. The node will be destroyed.", this);
             Destroy(this);
         }
 	}
