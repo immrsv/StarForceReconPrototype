@@ -15,6 +15,11 @@ public static class stSquadManager
     private static int _selectedIndex;
     private static SquaddieController _selected = null;
 
+    public static List<SquaddieController> GetSquadMembers
+    {
+        get { return _squadMembers; }
+    }
+
     public static SquaddieController GetCurrentSquaddie
     {
         get { return _selected; }
