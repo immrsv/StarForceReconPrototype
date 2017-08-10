@@ -1,25 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField]    private Health _health = null;
-
-    // float from 0-1 for how full the bar is
-    private float _barFill = 0;
-
-    void Awake()
-    {
-        // Subscribe to the damage event for the health script
-        if (_health != null)
-            _health.OnDamage += _health_OnDamage;
-    }
+    Health health;
+    RectTransform rect;
 
     private void _health_OnDamage(Health sender, float damageValue)
     {
         // This is called each time the health is changed. 
         // This is where we update the bar's values
+
+        
+
 
         // TODO:
         // Use the 'sender' parameter to get the max health
@@ -32,11 +27,14 @@ public class HealthBar : MonoBehaviour
 
     void Start ()
     {
-		
-	}
-	
-	void Update ()
+        rect = GetComponent<RectTransform>();
+        OverheadHUD hud = transform.parent.GetComponent<OverheadHUD>();
+        health = hud.target.GetComponent<Health>();
+    }
+
+    void Update()
     {
-		
-	}
+        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, (100*health.health)/health.maxHealth);
+    }
+
 }
