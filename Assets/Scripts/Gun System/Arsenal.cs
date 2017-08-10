@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/* Handles weapon switching for playable characters. */
+/* Handles weapon holding and switching for characters. */
 public class Arsenal : MonoBehaviour
 {
 

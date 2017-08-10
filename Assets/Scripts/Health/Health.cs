@@ -89,11 +89,13 @@ public class Health : MonoBehaviour
     
     void Update()
     {
-        // Handle health recharging
         _timeSinceDamage += Time.deltaTime;
         Recharge();
     }
 
+    /// <summary>
+    /// Handles health recharge functionality when applicable.
+    /// </summary>
     private void Recharge()
     {
         // Convert threshold percentage to actual value
@@ -145,6 +147,9 @@ public class Health : MonoBehaviour
             // Raise events
             RaiseEvent(OnHealthChanged, damage);
             RaiseEvent(OnDamage, damage);
+
+            if (_currentHealth <= 0)
+                Death(damage);
         }
     }
 

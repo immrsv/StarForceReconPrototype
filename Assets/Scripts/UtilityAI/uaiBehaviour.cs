@@ -54,7 +54,10 @@ namespace JakePerry
     {
         private uaiAgent _agent;  // Stores a reference to the agent script
         [SerializeField, HideInInspector]    private List<uaiConsideration> _considerations = new List<uaiConsideration>();
-        
+
+        [Tooltip("How important is this behaviour?")]
+        [Range(1.0f, 10.0f), SerializeField]    private float _weight = 1.0f;
+
         [Header("Action Delegates")]
         public UnityEngine.Events.UnityEvent _action;
 
@@ -145,7 +148,7 @@ namespace JakePerry
 
             if (considerations == 0) return 0.0f;
             
-            return totalPriority / considerations;
+            return (totalPriority / considerations) * _weight;
         }
 
         /// <summary>

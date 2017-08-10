@@ -174,7 +174,7 @@ public class Gun : MonoBehaviour
             Debug.DrawLine(_gunOrigin.position, _nonAllocHit.point, Color.blue, 0.5f);
 
             // Deal damage to the object hit
-            _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", SendMessageOptions.DontRequireReceiver);
+            _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", 1.0f, SendMessageOptions.DontRequireReceiver);
 
         }
     }
