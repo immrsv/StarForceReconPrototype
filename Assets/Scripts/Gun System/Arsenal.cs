@@ -54,7 +54,7 @@ public class Arsenal : MonoBehaviour
         {
             GunHolster g = _guns[0];
 
-            if (g)
+            if (!g)
             {
                 _guns.RemoveAt(i);
                 i--;

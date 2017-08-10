@@ -11,6 +11,14 @@ public class Gun : MonoBehaviour
 
     #endregion
 
+    #region Target Variables
+
+    [Tooltip("Which layers will be hit/ignored by the gun's shots?")]
+    [SerializeField]    private LayerMask _layerMask;
+    //private string[] _hittableTags;
+
+    #endregion
+
     #region Firing Variables
 
     [SerializeField]    private bool _semiAuto = false;
@@ -26,7 +34,7 @@ public class Gun : MonoBehaviour
 
     [Tooltip("Firing speed in Rounds per Minute")]
     [Range(30.0f, 300.0f), SerializeField]  private float _fireRateRPM = 150.0f;
-    private float _fireRate = 0.0f;
+    private float _fireWaitTime = 0.0f;
 
     #endregion
 
@@ -52,10 +60,21 @@ public class Gun : MonoBehaviour
 
     #endregion
 
+    #region NonAlloc Variables
+
+    private RaycastHit _nonAllocHit;
+    private RaycastHit[] _nonAllocHits = new RaycastHit[16];
+    private Ray _nonAllocRay = new Ray();
+
+    #endregion
+
     void Awake()
     {
-        // Get fire rate in shots per second
-        _fireRate = _fireRateRPM / 60;
+        // Get time to wait before each consecutive shot
+        _fireWaitTime = 1 / (_fireRateRPM / 60);
+
+        // Initialize ammo
+        _currentClip = (_clipSize < _startAmmo) ? _clipSize : _startAmmo;
     }
 
     /// <summary>
@@ -65,8 +84,8 @@ public class Gun : MonoBehaviour
     {
         // Handle fire-rate
         _timeSinceLastFire += Time.deltaTime;
-        bool fireRateQualified = (_timeSinceLastFire >= _fireRate);
-
+        bool fireRateQualified = (_timeSinceLastFire >= _fireWaitTime);
+        
         if (fireRateQualified)
         {
             // Reset fire-rate tracking
@@ -102,21 +121,16 @@ public class Gun : MonoBehaviour
     {
         // Randomize a spread angle
         float angle = Random.Range(0, 360);
-        float spread = Random.Range(-_spread, _spread);
-
-        float spreadX = Mathf.Cos(angle * Mathf.Deg2Rad) * spread;
-        float spreadY = Mathf.Sin(angle * Mathf.Deg2Rad) * spread;
+        float spread = Random.Range(0, _spread);
+        float tanOfSpread = Mathf.Tan(spread * Mathf.Deg2Rad);
+        
+        float spreadX = Mathf.Sin(angle * Mathf.Deg2Rad) * tanOfSpread;
+        float spreadY = Mathf.Cos(angle * Mathf.Deg2Rad) * tanOfSpread;
 
         // Get initial forward point
-        Vector3 point = _gunOrigin.position + _gunOrigin.forward;
+        Vector3 spreadPoint = _gunOrigin.forward + (_gunOrigin.up * spreadY) + (_gunOrigin.right * spreadX);
 
-        // Offset point to apply spread
-        point += (_gunOrigin.up * spreadY) + (_gunOrigin.right * spreadX);
-
-        // Get vector to the new point
-        Vector3 toSpreadPoint = point - _gunOrigin.position;
-
-        return toSpreadPoint.normalized;
+        return spreadPoint.normalized;
     }
 
     /// <summary>
@@ -126,6 +140,42 @@ public class Gun : MonoBehaviour
     {
         Vector3 spreadDirection = GetSpreadDirection();
 
-        // TODO: Shoot ray in this direction
+        // Raycast in this direction
+        _nonAllocRay.origin = _gunOrigin.position;
+        _nonAllocRay.direction = spreadDirection;
+        int hits = Physics.RaycastNonAlloc(_nonAllocRay, _nonAllocHits, 1000.0f, (int)_layerMask, QueryTriggerInteraction.Ignore);
+
+        if (hits > 0)
+        {
+            // Sort the hits array by distance from the shot origin to find the closest hit
+            if (hits > 1)
+            {
+                for (int i = 0; i < hits - 1; i++)
+                {
+                    if (i == _nonAllocHits.Length) break;
+
+                    // Get this hit & next hit
+                    RaycastHit thisHit = _nonAllocHits[i];
+                    RaycastHit nextHit = _nonAllocHits[i + 1];
+
+                    // Compare hits, order by ascending distance
+                    if (Vector3.Distance(thisHit.point, _gunOrigin.position) > Vector3.Distance(nextHit.point, _gunOrigin.position))
+                    {
+                        _nonAllocHits.SetValue(nextHit, i);
+                        _nonAllocHits.SetValue(thisHit, i + 1);
+
+                        // De-increment iterator
+                        i = (i < 2) ? 0 : i - 2;
+                    }
+                }
+            }
+
+            _nonAllocHit = _nonAllocHits[0];
+            Debug.DrawLine(_gunOrigin.position, _nonAllocHit.point, Color.blue, 0.5f);
+
+            // Deal damage to the object hit
+            _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", SendMessageOptions.DontRequireReceiver);
+
+        }
     }
 }
