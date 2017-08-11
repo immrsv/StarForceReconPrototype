@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33457032144009796}
   - component: {fileID: 23696210050637188}
   - component: {fileID: 95445407508432872}
+  - component: {fileID: 65291379045258002}
   m_Layer: 0
   m_Name: W_EdgeLarge
   m_TagString: Untagged
@@ -80,6 +81,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1133903335225584}
   m_Mesh: {fileID: 4300000, guid: 17371bb50f0da874f9df79371fbc1374, type: 3}
+--- !u!65 &65291379045258002
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1133903335225584}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4, y: 4, z: 0.39999998}
+  m_Center: {x: 0, y: 2, z: 0.19999999}
 --- !u!95 &95445407508432872
 Animator:
   serializedVersion: 3

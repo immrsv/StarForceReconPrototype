@@ -22,12 +22,13 @@ GameObject:
   - component: {fileID: 33024328419300664}
   - component: {fileID: 23291414608413626}
   - component: {fileID: 95215343419606470}
+  - component: {fileID: 65300550945434708}
   m_Layer: 0
   m_Name: Pillar_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
-  m_NavMeshLayer: 1
-  m_StaticEditorFlags: 8
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4520651679126464
 Transform:
@@ -35,8 +36,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1600762392560182}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 406, y: 0, z: 550}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -55,7 +56,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 8e08210b38d78584e898bc6697165a8c, type: 2}
+  - {fileID: 2100000, guid: dbd46b63d34b57946b1304fac57209d5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80,6 +81,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1600762392560182}
   m_Mesh: {fileID: 4300000, guid: 56e6f938f31399442addf0787b2c3fc6, type: 3}
+--- !u!65 &65300550945434708
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1600762392560182}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.9171435, y: 4, z: 0.926687}
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!95 &95215343419606470
 Animator:
   serializedVersion: 3

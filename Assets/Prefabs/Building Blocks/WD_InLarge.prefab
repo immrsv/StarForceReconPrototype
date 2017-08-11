@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33505840257908968}
   - component: {fileID: 23621065544312322}
   - component: {fileID: 95894733480776130}
+  - component: {fileID: 64119568422406868}
   m_Layer: 0
   m_Name: WD_InLarge
   m_TagString: Untagged
@@ -79,6 +80,20 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1060851042731990}
+  m_Mesh: {fileID: 4300000, guid: afdb793e51209cf40a370c0be13f1455, type: 3}
+--- !u!64 &64119568422406868
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1060851042731990}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Convex: 0
+  m_InflateMesh: 0
+  m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: afdb793e51209cf40a370c0be13f1455, type: 3}
 --- !u!95 &95894733480776130
 Animator:

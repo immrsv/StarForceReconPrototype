@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33859452004822208}
   - component: {fileID: 23987097676235848}
   - component: {fileID: 95031138533047146}
+  - component: {fileID: 64049006061464428}
   m_Layer: 0
   m_Name: D_WallSmall
   m_TagString: Untagged
@@ -79,6 +80,20 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1620188419040278}
+  m_Mesh: {fileID: 4300000, guid: 97da58eeb62b7784195df5c99bb100d5, type: 3}
+--- !u!64 &64049006061464428
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1620188419040278}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Convex: 0
+  m_InflateMesh: 0
+  m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: 97da58eeb62b7784195df5c99bb100d5, type: 3}
 --- !u!95 &95031138533047146
 Animator:

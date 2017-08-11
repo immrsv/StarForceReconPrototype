@@ -22,12 +22,13 @@ GameObject:
   - component: {fileID: 33967331425980868}
   - component: {fileID: 23496533954967458}
   - component: {fileID: 95422844563709772}
+  - component: {fileID: 64060746439897744}
   m_Layer: 0
   m_Name: WD_OutLarge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
-  m_NavMeshLayer: 1
-  m_StaticEditorFlags: 8
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4086761427071442
 Transform:
@@ -35,13 +36,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1293846925425212}
-  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0.0000029504295}
-  m_LocalPosition: {x: 394, y: 0, z: 526}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -180.00002, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &23496533954967458
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -55,7 +56,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 8e08210b38d78584e898bc6697165a8c, type: 2}
+  - {fileID: 2100000, guid: 1e0a0124568f532468aa444536205336, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79,7 +80,21 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1293846925425212}
-  m_Mesh: {fileID: 4300002, guid: 170a57fa09b673f44b408211efc840d2, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 170a57fa09b673f44b408211efc840d2, type: 3}
+--- !u!64 &64060746439897744
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1293846925425212}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Convex: 0
+  m_InflateMesh: 0
+  m_SkinWidth: 0.01
+  m_Mesh: {fileID: 4300000, guid: 170a57fa09b673f44b408211efc840d2, type: 3}
 --- !u!95 &95422844563709772
 Animator:
   serializedVersion: 3
