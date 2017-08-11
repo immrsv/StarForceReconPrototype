@@ -255,6 +255,7 @@ GameObject:
   - component: {fileID: 23978967844722634}
   - component: {fileID: 114723205539120316}
   - component: {fileID: 195651048568593392}
+  - component: {fileID: 114889233061557274}
   m_Layer: 0
   m_Name: Prototype enemy thing
   m_TagString: Enemy
@@ -1084,6 +1085,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
+  _weight: 1
   _action:
     m_PersistentCalls:
       m_Calls:
@@ -1112,10 +1114,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1dcfc05207d9b468295298e111bbcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 357
+  _maxHealth: 5
   _currentHealth: 0
   _isAlive: 1
-  _startingHealth: 357
+  _startingHealth: 5
   _startRandom: 0
   _startMinimum: 66
   _startMaximum: 66
@@ -1123,6 +1125,17 @@ MonoBehaviour:
   _lowThresholdRecharge: 15
   _delayAfterDamage: 2
   _gainPerSecond: 5
+--- !u!114 &114889233061557274
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1827878588260222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ade34523d6ffe4aaddf3fc2635a7b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!135 &135250638466930558
 SphereCollider:
   m_ObjectHideFlags: 1

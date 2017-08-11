@@ -6,6 +6,8 @@ public class SpawnZoneEditor : Editor
 {
     private void DrawSpawnZoneInspector()
     {
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("_startDisabled"));
+
         EditorGUILayout.LabelField("Quantities", EditorStyles.boldLabel);
 
         SerializedProperty minAliveEnemies = serializedObject.FindProperty("_minAliveEnemies");

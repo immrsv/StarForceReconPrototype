@@ -114,6 +114,11 @@ public class SpawnNode : MonoBehaviour
                     return;
                 }
 
+                // Set the initial position for the NavMeshAgent component
+                UnityEngine.AI.NavMeshAgent agent = enemy.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                if (agent)
+                    agent.Warp(agent.transform.position);
+
                 // Subscribe spawn-zone as listener for enemy's death event
                 Health h = enemy.GetComponentInChildren<Health>();
                 if (h)

@@ -6,8 +6,15 @@ public class SpawnZone : MonoBehaviour
 {
     #region Member variables
 
+    #region General
+
+    [Tooltip("Should this zone start disabled? If true, the zone must be enabled externally (trigger event, etc).")]
+    [SerializeField]    private bool _startDisabled = false;
+
+    #endregion
+
     #region Enemy tracking
-    
+
     private List<SpawnNode> _nodes = new List<SpawnNode>();
     private int _registeredEnemies = 0;
 
@@ -59,6 +66,12 @@ public class SpawnZone : MonoBehaviour
     #endregion
 
     #region Member Functions
+
+    void Awake()
+    {
+        if (_startDisabled)
+            this.enabled = false;
+    }
 
     void Update ()
     {
@@ -143,6 +156,7 @@ public class SpawnZone : MonoBehaviour
         if (h)
         {
             _registeredEnemies++;
+            _spawnCount++;
             h.OnDeath += OnEnemyDeath;
         }
     }
