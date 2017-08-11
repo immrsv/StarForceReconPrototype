@@ -7,6 +7,8 @@ public class Gun : MonoBehaviour
     #region General
 
     [SerializeField]    private Transform _gunOrigin = null;
+    [Tooltip("Amount of damage done per shot. For multi-shot weapons, damage will be divided by the number of projectiles per shot.")]
+    [Range(0.1f, 10.0f), SerializeField]    private float _damage = 1.0f;
     [Range(0.0f, 10.0f), SerializeField]    private float _spread = 0.0f;
 
     #endregion
@@ -174,7 +176,8 @@ public class Gun : MonoBehaviour
             Debug.DrawLine(_gunOrigin.position, _nonAllocHit.point, Color.blue, 0.5f);
 
             // Deal damage to the object hit
-            _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", 1.0f, SendMessageOptions.DontRequireReceiver);
+            float damage = _damage / _ammoPerShot;
+            _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", damage, SendMessageOptions.DontRequireReceiver);
 
         }
     }
