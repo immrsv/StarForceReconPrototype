@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
+    #region Delegates & Events
+
+    public delegate void GunEventDelegate(Gun sender);
+
+    public event GunEventDelegate OnReloadSuccess;
+    public event GunEventDelegate OnReloadFailed;
+
+    #endregion
+
     #region General
 
     [SerializeField]    private Transform _gunOrigin = null;
@@ -45,14 +54,24 @@ public class Gun : MonoBehaviour
     [SerializeField]    private bool _bottomlessClip = false;
     [SerializeField]    private bool _infiniteAmmo = false;
     [SerializeField]    private uint _startAmmo = 100;
+    private uint _currentAmmo = 0;
+    public uint remainingAmmoUnloaded
+    {
+        get { return _currentAmmo; }
+    }
+
     [Range(1, 5), SerializeField]   private uint _ammoPerShot = 1;
     [Range(5, 100), SerializeField] private uint _clipSize = 30;
     private uint _currentClip = 0;
-    private bool _reloadRequired = false;
+
+    [Tooltip("Time in seconds taken to reload.")]
+    [Range(0.0f, 10.0f), SerializeField]    private float _reloadTime = 0.0f;
+    private bool _isReloading = false;
     public bool reloadRequired
     {
-        get { return _reloadRequired; }
+        get { return (!_bottomlessClip && _currentClip == 0); }
     }
+    private IEnumerator _reloadCoroutine = null;
 
     #endregion
 
@@ -70,13 +89,28 @@ public class Gun : MonoBehaviour
 
     #endregion
 
-    void Awake()
+    private void OnValidate()
     {
         // Get time to wait before each consecutive shot
         _fireWaitTime = 1 / (_fireRateRPM / 60);
+    }
 
+    void Awake()
+    {
         // Initialize ammo
         _currentClip = (_clipSize < _startAmmo) ? _clipSize : _startAmmo;
+        _currentAmmo = _startAmmo - _clipSize;
+    }
+
+    /// <summary>
+    /// Safely raises the specified event if it has any registered listeners.
+    /// </summary>
+    private void RaiseEvent(GunEventDelegate e)
+    {
+        // Check there are any registered listeners before firing event
+        GunEventDelegate del = e;
+        if (del != null)
+            e(this);
     }
 
     /// <summary>
@@ -114,11 +148,10 @@ public class Gun : MonoBehaviour
                     FireShot();
                 }
             }
-            else
-                _reloadRequired = true;
         }
     }
-
+    
+    /// <returns>Vector3 direction for a random spread angle.</returns>
     private Vector3 GetSpreadDirection()
     {
         // Randomize a spread angle
@@ -179,6 +212,58 @@ public class Gun : MonoBehaviour
             float damage = _damage / _ammoPerShot;
             _nonAllocHit.transform.SendMessageUpwards("ApplyDamage", damage, SendMessageOptions.DontRequireReceiver);
 
+        }
+    }
+
+    /// <summary>
+    /// Begins a reload for this gun.
+    /// </summary>
+    public void DoReload()
+    {
+        if (!_bottomlessClip 
+            && !(_currentClip == _clipSize)
+            && !_isReloading)
+        {
+            _reloadCoroutine = HandleReloadTimer();
+            StartCoroutine(_reloadCoroutine);
+        }
+    }
+    
+    private void CancelReload()
+    {
+        if (_reloadCoroutine != null
+            && _isReloading)
+            StopCoroutine(_reloadCoroutine);
+
+        _isReloading = false;
+    }
+
+    private IEnumerator HandleReloadTimer()
+    {
+        uint reloadableAmmo = (_clipSize > _currentAmmo) ? _currentAmmo : _clipSize;
+
+        // Does the gun have any ammo remaining for reload?
+        if (reloadableAmmo > 0)
+        {
+            if (_reloadTime > 0)
+            {
+                _isReloading = true;
+                yield return new WaitForSeconds(_reloadTime);
+            }
+
+            _isReloading = false;
+
+            if (_infiniteAmmo)
+                _currentClip = _clipSize;
+            else
+                _currentClip = reloadableAmmo;
+
+            RaiseEvent(OnReloadSuccess);
+        }
+        else
+        {
+            // Raise event for reload failure
+            RaiseEvent(OnReloadFailed);
         }
     }
 }
