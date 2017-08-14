@@ -10,6 +10,7 @@ public class PlayerShoot : MonoBehaviour
     private Gun _currentGun = null;
 
     private bool _fireKeyDown = false;
+    private bool _reloadKeyDown = false;
 
 	void Start ()
     {
@@ -43,10 +44,24 @@ public class PlayerShoot : MonoBehaviour
                 {
                     // Fire the weapon
                     _currentGun.Fire();
+                    return;
                 }
             }
             else
                 _fireKeyDown = false;
+
+            // Get reload input
+            if (Input.GetAxisRaw("Reload") != 0)
+            {
+                if (!_reloadKeyDown)
+                {
+                    // Reload the weapon
+                    _currentGun.DoReload();
+                    return;
+                }
+            }
+            else
+                _reloadKeyDown = false;
         }
 	}
 }

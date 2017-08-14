@@ -421,26 +421,20 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4354191653968980, guid: f3f54d7d9eac5454fa7bf149eb18c9d4, type: 2}
       propertyPath: m_LocalRotation.x
-      value: 0.53267515
+      value: 0.5326752
       objectReference: {fileID: 0}
     - target: {fileID: 4354191653968980, guid: f3f54d7d9eac5454fa7bf149eb18c9d4, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0.07034045
+      value: 0.070340455
       objectReference: {fileID: 0}
     - target: {fileID: 4354191653968980, guid: f3f54d7d9eac5454fa7bf149eb18c9d4, type: 2}
       propertyPath: m_LocalRotation.z
-      value: 0.83613265
+      value: 0.83613276
       objectReference: {fileID: 0}
     - target: {fileID: 4354191653968980, guid: f3f54d7d9eac5454fa7bf149eb18c9d4, type: 2}
       propertyPath: m_LocalRotation.w
-      value: -0.11041513
+      value: -0.110415146
       objectReference: {fileID: 0}
-    - target: {fileID: 136741708646201258, guid: f3f54d7d9eac5454fa7bf149eb18c9d4,
-        type: 2}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: c2815a7ab32e42c4bb42f59caacb8ec1,
-        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f3f54d7d9eac5454fa7bf149eb18c9d4, type: 2}
   m_IsPrefabParent: 0
@@ -964,6 +958,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c953524a917f84593137565d51982f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _startDisabled: 0
   _restTime: 0
   _spawnToMax: 1
   _waveSize: 10

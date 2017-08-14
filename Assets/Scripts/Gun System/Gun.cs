@@ -63,6 +63,8 @@ public class Gun : MonoBehaviour
     [Range(1, 5), SerializeField]   private uint _ammoPerShot = 1;
     [Range(5, 100), SerializeField] private uint _clipSize = 30;
     private uint _currentClip = 0;
+    public uint ammoInClip
+    { get { return _currentClip; } }
 
     [Tooltip("Time in seconds taken to reload.")]
     [Range(0.0f, 10.0f), SerializeField]    private float _reloadTime = 0.0f;
@@ -102,6 +104,11 @@ public class Gun : MonoBehaviour
         _currentAmmo = _startAmmo - _clipSize;
     }
 
+    private void Update()
+    {
+        _timeSinceLastFire += Time.deltaTime;
+    }
+
     /// <summary>
     /// Safely raises the specified event if it has any registered listeners.
     /// </summary>
@@ -118,8 +125,6 @@ public class Gun : MonoBehaviour
     /// </summary>
     public void Fire()
     {
-        // Handle fire-rate
-        _timeSinceLastFire += Time.deltaTime;
         bool fireRateQualified = (_timeSinceLastFire >= _fireWaitTime);
         
         if (fireRateQualified)
