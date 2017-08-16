@@ -6,10 +6,17 @@ using UnityEditor;
 [CustomEditor(typeof(Gun))]
 public class GunEditor : Editor
 {
-    
+
     private void DrawInspector()
     {
         // TODO
+
+        // TEMP: Draw heat bar
+        SerializedProperty heatProperty = serializedObject.FindProperty("_currentHeat");
+        if (heatProperty != null)
+        {
+            ProgressBar(heatProperty.floatValue, "heat");
+        }
     }
 
     public override void OnInspectorGUI()
@@ -21,5 +28,12 @@ public class GunEditor : Editor
         serializedObject.ApplyModifiedProperties();
 
         DrawDefaultInspector();
+    }
+
+    private void ProgressBar(float value, string label)
+    {
+        Rect rect = GUILayoutUtility.GetRect(18, 18, "TextField");
+        EditorGUI.ProgressBar(rect, value, label);
+        EditorGUILayout.Space();
     }
 }

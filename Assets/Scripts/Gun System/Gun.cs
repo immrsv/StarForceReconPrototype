@@ -37,7 +37,7 @@ public class Gun : MonoBehaviour
     {
         get { return _semiAuto; }
     }
-    public int _semiAutoFireFrameCount = 0;
+    private int _semiAutoFireFrameCount = 0;
     private float _timeSinceLastFire = 0.0f;
 
     [Tooltip("Firing speed in Rounds per Minute")]
@@ -76,11 +76,21 @@ public class Gun : MonoBehaviour
 
     #region Heat Mechanics
 
-    private bool _useHeat = false;
-    private float _currentHeat = 0.0f;
+    [SerializeField]    private bool _useHeat = false;
+    [SerializeField, HideInInspector]   private float _currentHeat = 0.0f;
 
+    [Tooltip("Can't begin firing if heat is over this amount. Firing may persist past this threshold if the trigger is not released.")]
+    [Range(0.5f, 1.0f), SerializeField] private float _overheatThreshold = 0.8f;
+    [Tooltip("Firing will become available again when heat falls below this amount.")]
+    [Range(0.0f, 0.5f), SerializeField] private float _coolThreshold = 0.5f;
+
+    [Range(0.01f, 0.5f), SerializeField]    private float _heatPerShot = 0.05f;
+    private bool _heatLockUp = false;
+
+    [Range(0.1f, 1.0f), SerializeField] private float _heatLossPerSecond = 0.3f;
     [Tooltip("The time in seconds the gun will need to be idle for before beginning to cool.")]
-    [SerializeField]    private AnimationCurve _coolingPauseTime = new AnimationCurve();
+    [SerializeField]    private AnimationCurve _coolingPauseTime = 
+                                new AnimationCurve(new Keyframe(0, 0.8f), new Keyframe(1, 2.2f));
 
     #endregion
 
@@ -108,6 +118,7 @@ public class Gun : MonoBehaviour
     private void LateUpdate()
     {
         _timeSinceLastFire += Time.deltaTime;
+        HandleCooling();
     }
 
     /// <summary>
@@ -119,6 +130,33 @@ public class Gun : MonoBehaviour
         GunEventDelegate del = e;
         if (del != null)
             e(this);
+    }
+    
+    private void HandleCooling()
+    {
+        if (_currentHeat > 0)
+        {
+            // Check if the gun has been idle long enough to start cooling down
+            float timeBeforeCool = _coolingPauseTime.Evaluate(_currentHeat);
+            if (_timeSinceLastFire >= timeBeforeCool)
+            {
+                _currentHeat -= Time.deltaTime * _heatLossPerSecond;
+                if (_currentHeat < _coolThreshold)
+                    _heatLockUp = false;
+            }
+        }
+    }
+
+    private void ApplyHeat(uint shotCount)
+    {
+        float heatThisShot = (float)shotCount * _heatPerShot;
+        _currentHeat += heatThisShot;
+
+        if (_currentHeat > 1.0f)
+            _currentHeat = 1.0f;
+
+        if (_currentHeat > _overheatThreshold)
+            _heatLockUp = true;
     }
 
     /// <summary>
@@ -135,10 +173,15 @@ public class Gun : MonoBehaviour
                                     || (!usePlayerMechanics)
                                     || (!_semiAuto);
 
+        // Has the gun been locked up due to heat? Firing may persist past this threshold if not cancelled prior
+        bool heatQualified = ((!_heatLockUp) 
+                                    || (Time.frameCount == _semiAutoFireFrameCount + 1))
+                                    && (_currentHeat < 1);
+
         // Track this frame count for semi-auto functionality
         _semiAutoFireFrameCount = Time.frameCount;
 
-        if (fireRateQualified && semiAutoQualified)
+        if (fireRateQualified && semiAutoQualified && heatQualified)
         {
             // Reset fire-rate tracking
             _timeSinceLastFire = 0.0f;
@@ -157,6 +200,10 @@ public class Gun : MonoBehaviour
 
                     _currentClip -= ammoThisShot;
                 }
+
+                // Apply heat
+                if (usePlayerMechanics && _useHeat)
+                    ApplyHeat(ammoThisShot);
 
                 // Fire shots
                 for (int i = 0; i < ammoThisShot; i++)
