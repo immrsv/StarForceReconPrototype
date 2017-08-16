@@ -36,11 +36,8 @@ public class Gun : MonoBehaviour
     public bool semiAuto
     {
         get { return _semiAuto; }
-        /* NOTE: To allow Guns to be used by the player as well as AI, semi-auto
-         * functionality is only implemented by the PlayerShoot script. This allows
-         * AI to call the Fire method without having to handle trigger status.
-         */
     }
+    public int _semiAutoFireFrameCount = 0;
     private float _timeSinceLastFire = 0.0f;
 
     [Tooltip("Firing speed in Rounds per Minute")]
@@ -80,6 +77,10 @@ public class Gun : MonoBehaviour
     #region Heat Mechanics
 
     private bool _useHeat = false;
+    private float _currentHeat = 0.0f;
+
+    [Tooltip("The time in seconds the gun will need to be idle for before beginning to cool.")]
+    [SerializeField]    private AnimationCurve _coolingPauseTime = new AnimationCurve();
 
     #endregion
 
@@ -104,7 +105,7 @@ public class Gun : MonoBehaviour
         _currentAmmo = _startAmmo - _clipSize;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         _timeSinceLastFire += Time.deltaTime;
     }
@@ -123,11 +124,21 @@ public class Gun : MonoBehaviour
     /// <summary>
     /// Fires the gun.
     /// </summary>
-    public void Fire()
+    /// <param name="usePlayerMechanics">Should semi-auto & heat mechanics be checked?</param>
+    public void Fire(bool usePlayerMechanics)
     {
+        // Has enough time elapsed between shots?
         bool fireRateQualified = (_timeSinceLastFire >= _fireWaitTime);
-        
-        if (fireRateQualified)
+
+        // Has there been at least one frame where the gun was not fired? Semi-auto is ignored for AI
+        bool semiAutoQualified = (Time.frameCount > _semiAutoFireFrameCount + 1)
+                                    || (!usePlayerMechanics)
+                                    || (!_semiAuto);
+
+        // Track this frame count for semi-auto functionality
+        _semiAutoFireFrameCount = Time.frameCount;
+
+        if (fireRateQualified && semiAutoQualified)
         {
             // Reset fire-rate tracking
             _timeSinceLastFire = 0.0f;

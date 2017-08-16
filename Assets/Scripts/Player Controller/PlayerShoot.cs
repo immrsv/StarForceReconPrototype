@@ -8,8 +8,7 @@ public class PlayerShoot : MonoBehaviour
 
     private Arsenal _arsenal = null;
     private Gun _currentGun = null;
-
-    private bool _fireKeyDown = false;
+    
     private bool _reloadKeyDown = false;
 
 	void Start ()
@@ -34,21 +33,12 @@ public class PlayerShoot : MonoBehaviour
     {
         if (_currentGun)
         {
-            // Is the current gun semi automatic?
-            bool semiAuto = _currentGun.semiAuto;
-
             // Get fire input
             if (Input.GetAxisRaw("Fire1") != 0)
             {
-                if (!_fireKeyDown || !semiAuto)
-                {
-                    // Fire the weapon
-                    _currentGun.Fire();
-                    return;
-                }
+                _currentGun.Fire(true);
+                return;     // Gun has fired, don't bother checking for reload, etc this frame.
             }
-            else
-                _fireKeyDown = false;
 
             // Get reload input
             if (Input.GetAxisRaw("Reload") != 0)
