@@ -58,6 +58,9 @@ namespace JakePerry
         [Tooltip("How important is this behaviour?")]
         [Range(1.0f, 10.0f), SerializeField]    private float _weight = 1.0f;
 
+        [Header("Pre-Evaluation Delegates")]
+        public UnityEngine.Events.UnityEvent _preEvaluation;
+
         [Header("Action Delegates")]
         public UnityEngine.Events.UnityEvent _action;
 
@@ -128,6 +131,10 @@ namespace JakePerry
         /// </summary>
         public float Evaluate()
         {
+            // Raise pre-evaluation events
+            _preEvaluation.Invoke();
+
+            // Calculate priority
             float totalPriority = 0.0f;
             int i = 0;
             float considerations = 0;

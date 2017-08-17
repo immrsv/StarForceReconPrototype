@@ -46,12 +46,12 @@ public class TrackSquadMember : MonoBehaviour
             {
                 p.SetValue(1.0f);
                 _agent.destination = _agent.transform.position;
-                _agent.Stop();
+                _agent.isStopped = true;
             }
             else
             {
                 p.SetValue(0.0f);
-                _agent.Resume();
+                _agent.isStopped = false;
             }
         }
     }
