@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class AimGunAtPointer : MonoBehaviour
 {
-
+  
     private PlayerAim _aim = null;
 
 	void Start ()
     {
+
         _aim = GetComponentInParent<PlayerAim>();
 	}
 	
