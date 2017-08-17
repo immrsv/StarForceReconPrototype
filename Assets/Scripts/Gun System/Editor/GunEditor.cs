@@ -15,7 +15,7 @@ public class GunEditor : Editor
         SerializedProperty heatProperty = serializedObject.FindProperty("_currentHeat");
         if (heatProperty != null)
         {
-            ProgressBar(heatProperty.floatValue, "heat");
+            ProgressBar(heatProperty.floatValue, "heat: " + heatProperty.floatValue.ToString());
         }
     }
 

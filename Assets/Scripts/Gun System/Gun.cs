@@ -77,7 +77,10 @@ public class Gun : MonoBehaviour
     #region Heat Mechanics
 
     [SerializeField]    private bool _useHeat = false;
+    [SerializeField]    private bool _heatLocksReload = true;
     [SerializeField, HideInInspector]   private float _currentHeat = 0.0f;
+    private bool _heatTriggerMustRelease = false;
+    private bool _heatOverThresholdReleased = false;
 
     [Tooltip("Can't begin firing if heat is over this amount. Firing may persist past this threshold if the trigger is not released.")]
     [Range(0.5f, 1.0f), SerializeField] private float _overheatThreshold = 0.8f;
@@ -89,8 +92,7 @@ public class Gun : MonoBehaviour
 
     [Range(0.1f, 1.0f), SerializeField] private float _heatLossPerSecond = 0.3f;
     [Tooltip("The time in seconds the gun will need to be idle for before beginning to cool.")]
-    [SerializeField]    private AnimationCurve _coolingPauseTime = 
-                                new AnimationCurve(new Keyframe(0, 0.8f), new Keyframe(1, 2.2f));
+    [SerializeField]    private AnimationCurve _coolingPauseTime = AnimationCurve.EaseInOut(0, 0.8f, 1, 2.2f);
 
     #endregion
 
@@ -141,6 +143,8 @@ public class Gun : MonoBehaviour
             if (_timeSinceLastFire >= timeBeforeCool)
             {
                 _currentHeat -= Time.deltaTime * _heatLossPerSecond;
+                if (_currentHeat < 0) _currentHeat = 0;
+
                 if (_currentHeat < _coolThreshold)
                     _heatLockUp = false;
             }
@@ -173,18 +177,29 @@ public class Gun : MonoBehaviour
                                     || (!usePlayerMechanics)
                                     || (!_semiAuto);
 
+        // Trigger must be released before re-firing when heat reaches 100%
+        if (_heatTriggerMustRelease)
+            _heatTriggerMustRelease = !(Time.frameCount > _semiAutoFireFrameCount + 1);
+
+        if ((_currentHeat >= _overheatThreshold) && !_heatOverThresholdReleased)
+            _heatOverThresholdReleased = !(Time.frameCount == _semiAutoFireFrameCount + 1);
+
         // Has the gun been locked up due to heat? Firing may persist past this threshold if not cancelled prior
-        bool heatQualified = ((!_heatLockUp) 
-                                    || (Time.frameCount == _semiAutoFireFrameCount + 1))
-                                    && (_currentHeat < 1);
+        bool heatQualified =    (!_heatLockUp || !_heatOverThresholdReleased)
+                                && (_currentHeat < 1)
+                                && (!_heatTriggerMustRelease);
 
         // Track this frame count for semi-auto functionality
         _semiAutoFireFrameCount = Time.frameCount;
+
+        if (_currentHeat >= 1)
+            _heatTriggerMustRelease = true;
 
         if (fireRateQualified && semiAutoQualified && heatQualified)
         {
             // Reset fire-rate tracking
             _timeSinceLastFire = 0.0f;
+            _heatOverThresholdReleased = false;
 
             // Check ammo in clip
             if (_currentClip > 0 || _bottomlessClip)
@@ -287,8 +302,14 @@ public class Gun : MonoBehaviour
             && !(_currentClip == _clipSize)
             && !_isReloading)
         {
-            _reloadCoroutine = HandleReloadTimer();
-            StartCoroutine(_reloadCoroutine);
+            // Check heat-lock state
+            if (!(
+                (_useHeat && _currentHeat > _overheatThreshold)
+                && _heatLocksReload))
+            {
+                _reloadCoroutine = HandleReloadTimer();
+                StartCoroutine(_reloadCoroutine);
+            }
         }
     }
     

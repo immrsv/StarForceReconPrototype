@@ -58,14 +58,16 @@ public class CameraController : MonoBehaviour
     [Range(40.0f, 100.0f), Tooltip("The speed at which the camera will move when it is further than farDistance from it's destination")]
     [SerializeField]    private float _farSpeed = 95.0f;
     [Tooltip("Determines how quickly the camera will lerp towards it's destination.\n\n(x=0) Represents  distance 0; That is, when the camera is very close to it's destination already.\n\n(x=1) Represents the farDistance variable above.\n\n(y=0) Represents a speed of 0.\n\n(y=1) Represents the farSpeed variable above.\nIdeally this curve should have a positive gradient to make the camera slow down as it reaches it's destination.")]
-    [SerializeField]    private AnimationCurve _speedAtDistance = AnimationCurve.EaseInOut(0, 0.35f, 1, 1.0f);
+    [SerializeField]    private AnimationCurve _speedAtDistance = 
+                                new AnimationCurve(new Keyframe(0, 0.01f), new Keyframe(0.2f, 0.35f), 
+                                                    new Keyframe(1, 1.0f));
 
     #endregion
 
     #region General
 
     [Header("General")]
-    [Range(7.0f, 30.0f), SerializeField]    private float _hoverDistance = 20.0f;
+    [Range(7.0f, 30.0f), SerializeField]    private float _hoverDistance = 10.0f;
     [Range(10.0f, 85.0f), SerializeField]   private float _pitch = 45.0f;
     [Range(0.0f, 0.25f), Tooltip("How much of a priority is the player's aim point for the camera? \nat 0: Aiming further away from the player will not offset the camera.\nat 0.25: Aiming further away will cause the camera to focus on a point 25% of the way between the character and their aim point.")]
     [SerializeField]    private float _aimOffsetDistance = 0.1f;
