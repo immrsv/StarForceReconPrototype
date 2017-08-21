@@ -125,5 +125,29 @@ public class AudioSourceManager : MonoBehaviour
                 return 0.0f;
         }
     }
+
+    /// <summary>Sets the value of a channel.</summary>
+    /// <param name="c">The Audio Channel to set.</param>
+    /// <param name="value">The value to apply (0 to 1).</param>
+    public void SetChannelValue(AudioChannel c, float value)
+    {
+        float val = Mathf.Clamp01(value);
+        switch (c)
+        {
+            case AudioChannel.Master:
+                {
+                    _masterVolume = val;
+                    break;
+                }
+            case AudioChannel.Effects:
+                {
+                    _effectsVolume = val;
+                    break;
+                }
+
+            default:
+                break;
+        }
+    }
     
 }
