@@ -10,6 +10,7 @@ public class Gun : MonoBehaviour
 
     public event GunEventDelegate OnReloadSuccess;
     public event GunEventDelegate OnReloadFailed;
+    public event GunEventDelegate OnShotFired;
 
     #endregion
 
@@ -41,7 +42,7 @@ public class Gun : MonoBehaviour
     private float _timeSinceLastFire = 0.0f;
 
     [Tooltip("Firing speed in Rounds per Minute")]
-    [Range(30.0f, 300.0f), SerializeField]  private float _fireRateRPM = 150.0f;
+    [Range(30.0f, 900.0f), SerializeField]  private float _fireRateRPM = 450.0f;
     private float _fireWaitTime = 0.0f;
 
     #endregion
@@ -115,6 +116,9 @@ public class Gun : MonoBehaviour
         // Initialize ammo
         _currentClip = (_clipSize < _startAmmo) ? _clipSize : _startAmmo;
         _currentAmmo = _startAmmo - _clipSize;
+
+        // Get time to wait before each consecutive shot
+        _fireWaitTime = 1 / (_fireRateRPM / 60);
     }
 
     private void LateUpdate()
@@ -221,6 +225,7 @@ public class Gun : MonoBehaviour
                     ApplyHeat(ammoThisShot);
 
                 // Fire shots
+                RaiseEvent(OnShotFired);
                 for (int i = 0; i < ammoThisShot; i++)
                 {
                     FireShot();

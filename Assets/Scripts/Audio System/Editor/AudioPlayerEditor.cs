@@ -46,9 +46,9 @@ public class AudioPlayerEditor : Editor
 
         if (clips != null)
             clips.DoLayoutList();
+        
+        serializedObject.ApplyModifiedProperties();
 
         DrawDefaultInspector();
-
-        serializedObject.ApplyModifiedProperties();
     }
 }

@@ -46,7 +46,7 @@ public class AudioSourceManager : MonoBehaviour
 
     #region Audio Player Tracking
 
-    private List<AudioPlayer> _audioPlayers;
+    private List<AudioPlayer> _audioPlayers = new List<AudioPlayer>();
 
     #endregion
 
