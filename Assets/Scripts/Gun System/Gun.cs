@@ -27,7 +27,6 @@ public class Gun : MonoBehaviour
 
     [Tooltip("Which layers will be hit/ignored by the gun's shots?")]
     [SerializeField]    private LayerMask _layerMask;
-    //private string[] _hittableTags;
 
     #endregion
 
