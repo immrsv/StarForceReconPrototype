@@ -232,6 +232,9 @@ public class SpawnNode : MonoBehaviour
             return null;
         }
 
+        // Sort list by ascending chance
+        _spawnables.Sort((x, y) => x._chance.CompareTo(y._chance));
+
         // Pick a random enemy
         float rand = Random.Range(0, 100);
         float currentChance = 0.0f;
