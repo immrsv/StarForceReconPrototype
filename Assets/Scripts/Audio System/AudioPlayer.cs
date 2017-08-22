@@ -31,7 +31,18 @@ public class AudioPlayer : MonoBehaviour
 
     #region Audio Variables
 
-    public AudioSourceManager.AudioChannel _channel = AudioSourceManager.AudioChannel.Effects;
+    [SerializeField]    private AudioSourceManager.AudioChannel _channel = AudioSourceManager.AudioChannel.Effects;
+    public AudioSourceManager.AudioChannel channel
+    {
+        get { return _channel; }
+        set { _channel = value; }
+    }
+
+    [SerializeField]    private bool _timeScaleInfluencesPlayback = true;
+    public bool timeScaleInfluencesPlayback
+    {
+        get { return _timeScaleInfluencesPlayback; }
+    }
 
     private float _defaultPitch = 1.0f;
     private float _defaultVolume = 1.0f;
