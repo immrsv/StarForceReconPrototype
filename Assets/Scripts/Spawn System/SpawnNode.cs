@@ -20,16 +20,17 @@ public class SpawnNode : MonoBehaviour
 
     // Struct used for grouping enemy prefabs with spawn probability
     [System.Serializable]
-    private struct SpawnNodeEnemy
+    private class SpawnNodeEnemy
     {
         public GameObject _enemy;
-        public float _chance;
+        [Range(0, 100)] public float _chance;
+        public float _prevChance;
     }
 
     [SerializeField, HideInInspector]    private List<SpawnNodeEnemy> _spawnables;
 
     private GameObject _enemyEmptyParent = null;
-    [SerializeField]    private Transform _spawnLocation = null;
+    [SerializeField, HideInInspector]   private Transform _spawnLocation = null;
 
     #endregion
 
@@ -82,6 +83,113 @@ public class SpawnNode : MonoBehaviour
         }
 	}
 
+    #region Chance-Ratio Functionality
+
+    /// <summary>Used internally to find the index of the spawnable enemy of which has had it's chance to spawn altered.</summary>
+    private int FindAlteredChanceIndex()
+    {
+        for (int i = 0; i < _spawnables.Count; i++)
+        {
+            if (_spawnables[i]._prevChance != _spawnables[i]._chance)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>Returns the sum of each spawnable's chance value.</summary>
+    /// <param name="indexToIgnore">Optional index to ignore. Element at this index will not be added to the sum.</param>
+    private float GetChanceSum(int indexToIgnore = -1)
+    {
+        float total = 0.0f;
+        for (int i = 0; i < _spawnables.Count; i++)
+        {
+            if (i != indexToIgnore)
+                total += _spawnables[i]._chance;
+        }
+
+        return total;
+    }
+
+    /// <summary>Used internally to update each spawnable's previous-chance so it may be used next validation.</summary>
+    private void UpdateTrackersForChanceValues()
+    {
+        for (int i = 0; i < _spawnables.Count; i++)
+        {
+            SpawnNodeEnemy s = _spawnables[i];
+            s._prevChance = s._chance;
+        }
+    }
+
+    private void KeepSpawnChancesInRatio()
+    {
+        if (_spawnables.Count > 0)
+        {
+            // Find which spawnable had it's chance value modified.
+            int index = FindAlteredChanceIndex();
+
+            // Get the sum of all chance values
+            float sum = GetChanceSum();
+            float sumExcludingModified = GetChanceSum(index);
+            float remainder = (index >= 0) ? 100 - _spawnables[index]._chance : 100;
+
+            if (sum != 100.0f)
+            {
+                bool changeMade = false;
+                // Iterate through each spawnable
+                for (int i = 0; i < _spawnables.Count; i++)
+                {
+                    SpawnNodeEnemy s = _spawnables[i];
+
+                    // Find the ratio, then set the value to this ratio of the remainder
+                    if (s._chance > 0 && i != index)
+                    {
+                        changeMade = true;
+                        float ratio = s._chance / sumExcludingModified;
+                        s._chance = remainder * ratio;
+                    }
+                }
+
+                if (!changeMade)
+                {
+                    // No changes were made! Either there is only one spawnable, or all non-modified are at 0
+                    if (_spawnables.Count == 1)
+                        _spawnables[0]._chance = 100;
+                    else
+                    {
+                        int zeroQuantity = 0;
+                        foreach (SpawnNodeEnemy s in _spawnables)
+                        {
+                            if (s._chance == 0)
+                                zeroQuantity++;
+                        }
+
+                        float ratio = remainder / zeroQuantity;
+                        for (int i = 0; i < _spawnables.Count; i++)
+                        {
+                            SpawnNodeEnemy s = _spawnables[i];
+
+                            if (i != index)
+                                s._chance = ratio;
+                        }
+                    }
+                }
+            }
+
+            // Update each spawnable's previous-chance for use next Validation
+            UpdateTrackersForChanceValues();
+        }
+    }
+
+    void OnValidate()
+    {
+        KeepSpawnChancesInRatio();
+    }
+
+    #endregion
+
     void Start()
     {
         /* NOTE: Components will not receive the OnDestroy method call
@@ -91,17 +199,62 @@ public class SpawnNode : MonoBehaviour
          * method is called. 
          */
     }
-    
+
+    private GameObject PickRandomEnemy()
+    {
+        // Remove any instances with null enemy reference
+        bool anyRemoved = false;
+        int i = 0;
+        while (i < _spawnables.Count)
+        {
+            if (_spawnables[i]._enemy == null)
+            {
+                _spawnables.RemoveAt(i);
+                anyRemoved = true;
+                i--;
+            }
+
+            i++;
+        }
+
+        // Re-calculate ratios if any elements were removed
+        if (anyRemoved)
+        {
+            Debug.LogWarning("Warning: One or more spawnable-enemies were removed due to null enemy reference.", this);
+            KeepSpawnChancesInRatio();
+        }
+
+        // Check there are still spawnables left
+        if (_spawnables.Count == 0)
+        {
+            Debug.LogWarning("Warning: No spawnable-enemies available. Destroying spawn node.", this);
+            Destroy(this);
+            return null;
+        }
+
+        // Pick a random enemy
+        float rand = Random.Range(0, 100);
+        float currentChance = 0.0f;
+        for (int j = 0; j < _spawnables.Count; j++)
+        {
+            currentChance += _spawnables[j]._chance;
+
+            if (rand <= currentChance)
+                return _spawnables[j]._enemy;
+        }
+
+        return _spawnables[_spawnables.Count - 1]._enemy;
+    }
+
     public void SpawnEnemies(int quantity)
     {
         if (_spawnables.Count > 0)
         {
             for (int i = 0; i < quantity; i++)
             {
-                // TODO: Use chance to pick an enemy
-                GameObject e = _spawnables[0]._enemy;
-                
-                // TODO: Check if null, remove from list & log error if so
+                GameObject e = PickRandomEnemy();
+                if (e == null)
+                    return;
 
                 // Instantiate enemy
                 GameObject enemy = Instantiate(e, _enemyEmptyParent.transform);

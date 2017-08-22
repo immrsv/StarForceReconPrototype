@@ -44,6 +44,38 @@ public class SpawnNodeEditor : Editor
                         chanceProperty.floatValue = 0;
                 }
             };
+
+        spawnables.onAddCallback =
+            (ReorderableList r) =>
+            {
+                // Add a new element
+                r.serializedProperty.arraySize++;
+
+                // Get a reference to the new element
+                int arraySize = r.serializedProperty.arraySize;
+                SerializedProperty element = r.serializedProperty.GetArrayElementAtIndex(arraySize - 1);
+
+                if (element != null)
+                {
+                    SerializedProperty chance = element.FindPropertyRelative("_chance");
+                    SerializedProperty prevChance = element.FindPropertyRelative("_prevChance");
+
+                    if (chance != null && prevChance != null)
+                    {
+                        if (arraySize == 1)
+                        {
+                            // This is the first element
+                            chance.floatValue = 100.0f;
+                            prevChance.floatValue = 100.0f;
+                        }
+                        else
+                        {
+                            chance.floatValue = 0.0f;
+                            prevChance.floatValue = 0.0f;
+                        }
+                    }
+                }
+            };
     }
 
     public override void OnInspectorGUI()

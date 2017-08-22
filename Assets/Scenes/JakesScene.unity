@@ -1233,9 +1233,9 @@ MonoBehaviour:
   _restTime: 0
   _spawnToMax: 1
   _waveSize: 10
-  _enemyPoolSize: 0
+  _enemyPoolSize: 12
   _maxAliveEnemies: 10
-  _minAliveEnemies: 0
+  _minAliveEnemies: 1
 --- !u!4 &898936715
 Transform:
   m_ObjectHideFlags: 0
@@ -2323,7 +2323,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _zone: {fileID: 898936714}
   _getClosestZone: 0
-  _spawnables: []
+  _spawnables:
+  - _enemy: {fileID: 0}
+    _chance: 21.179436
+    _prevChance: 21.179436
+  - _enemy: {fileID: 0}
+    _chance: 6.7453513
+    _prevChance: 6.7453513
+  - _enemy: {fileID: 0}
+    _chance: 18.057232
+    _prevChance: 18.057232
+  - _enemy: {fileID: 0}
+    _chance: 25.617983
+    _prevChance: 25.617983
+  - _enemy: {fileID: 0}
+    _chance: 28.4
+    _prevChance: 28.4
   _spawnLocation: {fileID: 921717169}
 --- !u!23 &1797280546
 MeshRenderer:
