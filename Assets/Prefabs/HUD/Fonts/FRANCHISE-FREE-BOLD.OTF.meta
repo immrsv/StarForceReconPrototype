@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 2620d08cc5000e540ae11c9fb09d6d08
+timeCreated: 1503125452
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Franchise Free
+  fontNames:
+  - Franchise Free
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
